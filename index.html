@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/tabulator/3.4.2/css/tabulator.min.css" rel="stylesheet">
+	
+	<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+	<script src="scripts/libs/jquery-ui/jquery-ui.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/tabulator/3.4.2/js/tabulator.min.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.14/marked.min.js"></script>
+	
+	<script type="text/javascript" src="scripts/libs/byc/byc.js"></script>
+	<script type="text/javascript" src="scripts/definitions.js"></script>
+	<script type="text/javascript" src="scripts/main.js"></script>
+	
+	<title>BYC-lyzer</title>
+	<style>
+		.monospaced{
+			font-family: monospace;
+		}
+		.pagebreak{
+			page-break-before: always;
+		}
+		html {
+			position: relative;
+			min-height: 100%;
+		}
+		body {
+			/* Margin bottom by footer height */
+			margin-bottom: 70px;
+		}
+		#main-content{
+			padding-top: 10px;
+			padding-bottom: 10px;
+		}
+		.footer {
+			font-size: small;
+			text-align: center;
+			position: absolute;
+			bottom: 0;
+			width: 100%;
+			/* Set the fixed height of the footer here */
+			height: 70px;
+			line-height: 30px;
+			background-color: #f5f5f5;
+		}
+		@media screen and (max-width: 800px) {
+			body {
+				margin-bottom: 100px;
+			}
+			.footer {
+				height: 100px;
+			}
+		}
+		.tabulator .tabulator-header .tabulator-col .tabulator-col-content .tabulator-col-title {
+			white-space: normal;
+		}
+	</style>
+</head>
+<body onLoad="init()">
+<div id="main-content" class="container-fluid">
+	<div class="row d-print-none">
+		<div class="col-lg-12">
+			<button type="button" class="btn btn-primary" onclick="btnAnalyze()">Analyze</button>
+			<button type="button" class="btn btn-info" data-toggle="modal" data-target="#myModal">Site Information</button>
+		</div>
+		<div class="form-group col-lg-8">
+			<label for="input-seed">BYC Current Seed (required):</label>
+			<textarea class="form-control monospaced" id="input-seed" rows="4" placeholder="Copy and paste the latest seed here."></textarea>
+		</div>
+		<div class="form-group col-lg-4">
+			<label for="input-seed-initial">BYC Initial Seed (optional):</label>
+			<textarea class="form-control monospaced" readonly id="input-seed-initial" rows="4" placeholder="Copy and paste the first seed here."></textarea>
+		</div>
+	</div>
+	<div>
+		<h4 class="d-print-none">Game status: <span id="game-status">Not analyzed</span></h4>
+		<div id="tables"></div>
+	</div>
+</div>
+
+<footer class="footer d-print-none">
+	<div class="container-fluid">
+		<span class="text-muted">Inspired by <a href="https://www.fantasyflightgames.com/en/products/battlestar-galactica/">Battlestar Galactica: The Board Game (FFG)</a> and <a href="https://boardgamegeek.com/thread/1848115/your-command-mod-free-bsg-pbf">By Your Command</a> (<a href="https://boardgamegeek.com/user/kingerc">kingerc@BGG</a>) Mod-free BSG PBF tool.</span>
+		<br/>
+		<span>End of Line</span>
+	</div>
+</footer>
+
+<!-- Modal -->
+<div id="myModal" class="modal fade" role="dialog">
+	<div class="modal-dialog modal-lg" role="document">
+		<!-- Modal content-->
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title" label="myModalLabel">BYC-lyzer</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			<div class="modal-body">
+				See <a href="README.md" target="_blank">README.md</a> for more information.
+			</div>
+			<div class="modal-footer">
+				<button id="btnPersistent" type="button" class="btn btn-secondary" onclick="optInForLocalStorage()">Opt-in for Persistent Data</button>
+				<button type="button" class="btn btn-danger" onclick="clearStorage()">Clear Data</button>
+				<button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+</body>
+</html> 
