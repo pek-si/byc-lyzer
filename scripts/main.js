@@ -259,7 +259,7 @@ function parseTokens(data, cardType, showPrivateData, extraData){
 		if(handArray[i] instanceof Array){
 			var oneHand = handArray[i];
 			for(var j=0; j < oneHand.length; ++j){
-				var card = parseToken(cardType, oneHand[j]);
+				var card = parseToken(cardType, oneHand[j], extraData);
 				if(card){
 					card.setOrdinal(turn++);
 					card.setDiscarded(true);
@@ -269,7 +269,7 @@ function parseTokens(data, cardType, showPrivateData, extraData){
 				}
 			}
 		}else{
-			var card = parseToken(cardType, handArray[i]);
+			var card = parseToken(cardType, handArray[i], extraData);
 			if(card){
 				card.setOrdinal(turn++);
 				card.setDiscarded(true);
@@ -282,7 +282,7 @@ function parseTokens(data, cardType, showPrivateData, extraData){
 		if(discarded[i] instanceof Array){
 			var oneHand = discarded[i];
 			for(var j=0; j < oneHand.length; ++j){
-				var card = parseToken(cardType, oneHand[j]);
+				var card = parseToken(cardType, oneHand[j], extraData);
 				if(card){
 					card.setOrdinal(turn++);
 					card.setDiscarded(true);
@@ -292,7 +292,7 @@ function parseTokens(data, cardType, showPrivateData, extraData){
 				}
 			}
 		}else{
-			var card = parseToken(cardType, discarded[i]);
+			var card = parseToken(cardType, discarded[i], extraData);
 			if(card){
 				card.setOrdinal(turn++);
 				card.setDiscarded(true);
