@@ -13,7 +13,6 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-
 "use strict";
 
 var _staticData = {
@@ -28,6 +27,8 @@ var tables = [
 	{id: "damage", title: "Damaged Locations", expansion: "basegame"},
 	{id: "super", title: "Super Crises", expansion: "basegame"},
 	{id: "loyalty", title: "Loyalty Cards", expansion: "basegame"},
+	{id: "dradis", title: "DRADIS (Galactica)", expansion: "basegame"},
+	{id: "civilian", title: "Civilians", expansion: "basegame"},
 	{id: "destiny", title: "Destiny", expansion: "basegame",  privateDataTable: true},
 	{id: "skill-hand", title: "Skill Cards (Players)", expansion: "basegame", privateDataTable: true},
 	{id: "mutiny", title: "Mutiny Cards (Daybreak)", expansion: "daybreak"},
@@ -109,10 +110,32 @@ function setupTables(){
 			],
 		}, DEFAULT_OPTIONS);
 	var loyaltyOptions = jQuery.extend(true, {}, superCrisisOptions)	//has similar properties with super crisis cards
-	var skillOptions = jQuery.extend(true, {}, superCrisisOptions)	//has similar properties with super crisis cards
+	var dradisOptions = jQuery.extend(true, {
+			columns:[
+				jQuery.extend(true, {}, COLUMN_GROUP_TOKEN),
+				jQuery.extend(true, {}, COLUMN_GROUP_OWNABLE),
+				jQuery.extend(true, {}, COLUMN_GROUP_TOKEN_DETAILS)
+			],
+		}, DEFAULT_OPTIONS);
+	var civilianOptions = jQuery.extend(true, {
+			columns:[
+				jQuery.extend(true, {}, COLUMN_GROUP_TOKEN),
+				jQuery.extend(true, {}, COLUMN_GROUP_PLAYABLE)
+			],
+		}, DEFAULT_OPTIONS);
+	var skillOptions = jQuery.extend(true, {
+			columns:[
+				jQuery.extend(true, {}, COLUMN_GROUP_TOKEN),
+				jQuery.extend(true, {}, COLUMN_GROUP_SKILL),
+				jQuery.extend(true, {}, COLUMN_GROUP_OWNABLE),
+				jQuery.extend(true, {}, COLUMN_GROUP_PLAYABLE),
+				jQuery.extend(true, {}, COLUMN_GROUP_TOKEN_DETAILS)
+			],
+		}, DEFAULT_OPTIONS);
 	var destinyOptions = jQuery.extend(true, {
 			columns:[
 				jQuery.extend(true, {}, COLUMN_GROUP_TOKEN),
+				jQuery.extend(true, {}, COLUMN_GROUP_SKILL),
 				jQuery.extend(true, {}, COLUMN_GROUP_TOKEN_DETAILS)
 			],
 		}, DEFAULT_OPTIONS);
@@ -137,8 +160,17 @@ function setupTables(){
 	superCrisisOptions.height=null;
 	loyaltyOptions.height=null;
 	loyaltyOptions.initialSort=[ {column:"owner", dir:"asc"} ];
+	dradisOptions.groupBy = "owner";
+	dradisOptions.initialSort=[ {column:"owner", dir:"asc"} ];
+	dradisOptions.height=null;
+	dradisOptions.columns[0].columns[0].title="Ship";
+	dradisOptions.columns[1].title="Sector";
+	dradisOptions.groupHeader = null;
+	civilianOptions.columns[0].columns[0].title="Civilian";
+	civilianOptions.columns[1].title="In Space";
+	civilianOptions.height = null;
 	skillOptions.groupBy = "owner";
-	skillOptions.groupHeader = null;
+	skillOptions.groupHeader = skillHeaderFormatter;
 	destinyOptions.height=null;
 	damageOptions.columns[0].columns[0].title="Location";
 	damageOptions.columns[0].columns[0].width=COLUMN_SIZE.MEDIUM;
@@ -146,15 +178,17 @@ function setupTables(){
 	mutinyOptions.height=null;
 	
 	//tabulate
-	_staticData.tableHandles["crisis"] = $("#table-crisis").tabulator(crisisOptions);
-	_staticData.tableHandles["destination"] = $("#table-destination").tabulator(destinationOptions);
-	_staticData.tableHandles["quorum"] = $("#table-quorum").tabulator(quorumOptions);
-	_staticData.tableHandles["super"] = $("#table-super").tabulator(superCrisisOptions);
-	_staticData.tableHandles["loyalty"] = $("#table-loyalty").tabulator(loyaltyOptions);
-	_staticData.tableHandles["skill-hand"] = $("#table-skill-hand").tabulator(skillOptions);
-	_staticData.tableHandles["destiny"] = $("#table-destiny").tabulator(destinyOptions);
-	_staticData.tableHandles["damage"] = $("#table-damage").tabulator(damageOptions);
-	_staticData.tableHandles["mutiny"] = $("#table-mutiny").tabulator(mutinyOptions);
+	tabulate("crisis", crisisOptions);
+	tabulate("destination", destinationOptions);
+	tabulate("quorum", quorumOptions);
+	tabulate("super", superCrisisOptions);
+	tabulate("loyalty", loyaltyOptions);
+	tabulate("dradis", dradisOptions);
+	tabulate("civilian", civilianOptions);
+	tabulate("skill-hand", skillOptions);
+	tabulate("destiny", destinyOptions);
+	tabulate("damage", damageOptions);
+	tabulate("mutiny", mutinyOptions);
 }
 
 function btnAnalyze(){
@@ -199,6 +233,8 @@ function parseData(data){
 			TOKEN_TYPE.SUPER_CRISIS, showPrivateData);
 	var loyaltyData = parseTokens({hands: data.loyaltyHands, discards: data.loyaltyDiscards, deck: data.loyaltyDeck, owner: data.players}, 
 			TOKEN_TYPE.LOYALTY, showPrivateData);
+	var dradisData = parseTokens(combineDradisData(data), TOKEN_TYPE.SHIP, showPrivateData);
+	var civilianData = parseTokens(combineCivilianData(data, showPrivateData), TOKEN_TYPE.CIVILIAN, showPrivateData);
 	var skillHandData = parseTokens({hands: data.skillCardHands, discards: [], deck: [], owner: data.players}, 
 			TOKEN_TYPE.SKILL, showPrivateData, {daybreak: data.daybreak, pegasus: data.pegasus});
 	var destinyData = parseTokens({deck: data.destiny}, 
@@ -215,7 +251,7 @@ function parseData(data){
 		$(".daybreak").hide();
 	}
 	
-	//hide certain tables
+	//hide/show certain tables
 	if(showPrivateData){
 		$(".privateDataTable").show();
 	}else{
@@ -228,17 +264,17 @@ function parseData(data){
 	setTableData("damage", damageData);
 	setTableData("super", superData);
 	setTableData("loyalty", loyaltyData);
+	setTableData("dradis", dradisData);
+	setTableData("civilian", civilianData);
 	setTableData("skill-hand", skillHandData);
 	setTableData("destiny", destinyData);
 	setTableData("mutiny", mutinyData);
 	
 	//TODO data.basestarDamage
-	//TODO data civilianPile; destroyedCivilians; civilianLetters; spaceCivilians
 	//TODO data skillCardDecks; skillCardDiscards;	///	skillCheckCards
 	//TODO data.dieRolls
 	//TODO ionian 		data traumaPile; sickbayTrauma; brigTrauma; allyDeck & allies?
 	//TODO new caprica 	data lockedCivilians; preparedCivilians
-	
 }
 
 function parseTokens(data, cardType, showPrivateData, extraData){
@@ -248,7 +284,7 @@ function parseTokens(data, cardType, showPrivateData, extraData){
 	var ownerArray = data.owner ? data.owner : [];
 	var handArray = data.hands ? data.hands : [];
 	var discarded = data.discards ? data.discards : [];
-	var inDeck = data.deck;
+	var inDeck = data.deck ? data.deck : [];
 	
 	if(!Boolean(showPrivateData)){	//eliminates disclosure of secret information
 		handArray = [];
@@ -315,6 +351,9 @@ function parseTokens(data, cardType, showPrivateData, extraData){
 function parseToken(type, tokenId, extraData){
 	var token = null;
 	switch(type){
+		case TOKEN_TYPE.CIVILIAN:
+			token = new Ship(tokenId, tokenId);
+			break;
 		case TOKEN_TYPE.CRISIS:
 			token = new CrisisCard(tokenId, d.crisisNames[tokenId], d.activation[tokenId], d.jumpIcon[tokenId]);
 			break;
@@ -331,8 +370,11 @@ function parseToken(type, tokenId, extraData){
 		case TOKEN_TYPE.MUTINY:
 			token = new MutinyCard(tokenId, d.mutinyNames[tokenId]);
 			break;
+		case TOKEN_TYPE.SHIP:
+			token = new Ship(tokenId, shipName(tokenId));
+			break;
 		case TOKEN_TYPE.SKILL:
-			token = new MultiHandCard(tokenId, cardName(tokenId, extraData));
+			token = new SkillCard(tokenId, cardName(tokenId, extraData), cardValue(tokenId, extraData));
 			break;
 		case TOKEN_TYPE.SUPER_CRISIS:
 			token = new MultiHandCard(tokenId, d.crisisNames[tokenId]);
@@ -346,15 +388,119 @@ function parseToken(type, tokenId, extraData){
 	return token;
 }
 
+function combineCivilianData(data, showPrivateData){
+	var civilians = { hands: [], discards: data.destroyedCivilians, deck: [] };
+
+	for(var i=0; i<data.spaceCivilians.length; ++i){
+		var civs = data.spaceCivilians[i];
+		for(var j=0; j<civs.length; ++j){
+			var civ = civs[j];
+			var civId;
+			if(showPrivateData){
+				civId = civ[1] + " (Civilian " + civ[0] + "; Sector "+(i+1)+")";
+			}else{
+				civId = "Civilian " + civ[0];
+			}
+			civilians.hands.push(civId);
+		}
+	}
+	var letters = jQuery.extend(true, [], data.civilianLetters);
+	for(var i=data.civilianPile.length-1; i >= 0; --i){
+		var civ = data.civilianPile[i];
+		var civId;
+		if(showPrivateData){
+			civId = civ + " (Civilian " + letters.shift() + ")";
+		}else{
+			civId = "Civilian " + letters.shift();
+		}
+		civilians.deck.unshift(civId);
+	}
+	return civilians;
+}
+
+function combineDradisData(data){
+	var ships = { discards: [], owner: [] };
+
+	for(var i=1; i<7; ++i){
+		var sector = [];
+		for(var j=0; j<data.basestars.length; ++j){
+			if(data.basestars[j] == i){
+				sector.push("B_"+j);
+			}
+		}
+		for(var j=0; j<data.heavies.length; ++j){
+			if(data.heavies[j] == i){
+				sector.push("H_"+j);
+			}
+		}
+		for(var j=0; j<data.raiders.length; ++j){
+			if(data.raiders[j] == i){
+				sector.push("R_"+j);
+			}
+		}
+		if(data.daybreak){
+			for(var j=0; j<data.assaultRaptors.length; ++j){
+				if(data.assaultRaptors[j] == i){
+					sector.push("AR_"+j);
+				}
+			}
+		}
+		if(data.CFB){
+			for(var j=0; j<data.vipersII.length; ++j){
+				if(data.vipersVII[j] == i){
+					sector.push("V7_"+j);
+				}
+			}
+		}
+		for(var j=0; j<data.vipersII.length; ++j){
+			if(data.vipersII[j] == i){
+				sector.push("V2_"+j);
+			}
+		}
+		var civs = data.spaceCivilians[i-1];
+		for(var j=0; j<civs.length; ++j){
+			var civId = "C_" + civs[j][0];
+			sector.push(civId);
+		}
+		ships.discards.push(sector);
+		ships.owner.push("Sector "+i);
+	}
+	return ships;
+}
+
 
 /**
  * HELPER FUNCTIONS ET AL.
  **/
 
+function tabulate(tableId, options){
+	if(tableId && options){
+		_staticData.tableHandles[tableId] = $("#table-"+tableId).tabulator(options);
+	}
+}
+
 function setTableData(tableId, data){
 	if(data){
 		_staticData.tableHandles[tableId].tabulator("setData", data);
 	}
+}
+
+function shipName(id){
+	var shipId = id.match(/[a-z]{1,2}\d{0,1}/i)[0];
+	var shipName;
+	switch(shipId){
+		case "V2": shipName = "Viper Mark II"; break;
+		case "V7": shipName = "Viper Mark VII"; break;
+		case "AR": shipName = "Assault Raptor"; break;
+		case "C": shipName = "Civilian " + id.substring(2); break;
+		case "R": shipName = "Raider"; break;
+		case "H": shipName = "Heavy Raider"; break;
+		case "B": shipName = "Basestar"; break;
+		case "O": shipName = "Occupation Force"; break;
+		case "L": shipName = "Launch Raiders"; break;
+		default: shipName = "Unknown"; break;
+	}
+	return shipName;
 }
 
 /**

@@ -141,6 +141,16 @@ QuorumCard.prototype = Object.create(SingleHandCard.prototype);
 Object.assign(QuorumCard.prototype, Buryable.prototype);
 QuorumCard.prototype.constructor = QuorumCard;
 
+// Skill Card class
+var SkillCard = function(identifier, name, value){
+	MultiHandCard.call(this, identifier, name);
+	Buryable.call(this);
+	this.value = value;
+}
+SkillCard.prototype = Object.create(MultiHandCard.prototype);
+Object.assign(SkillCard.prototype, Buryable.prototype);
+SkillCard.prototype.constructor = SkillCard;
+
 // Mutiny Card class
 var MutinyCard = function(identifier, name){
 	MultiHandCard.call(this, identifier, name);
@@ -171,6 +181,7 @@ var TOKEN_TYPE = {
 	DESTINATION: "destination",
 	LOYALTY: "loyalty",
 	MUTINY: "mutiny",
+	SHIP: "ship",
 	SKILL: "skill",
 	SUPER_CRISIS: "super",
 	QUORUM: "quorum"
@@ -215,6 +226,9 @@ var COLUMN_GROUP_PLAYABLE = {
 var COLUMN_GROUP_OWNABLE = {
 	title:"Player", field:"owner", width: COLUMN_SIZE.WIDE
 };
+var COLUMN_GROUP_SKILL = {
+	title:"Value", field:"value", align:"right", sorter:"number", width: COLUMN_SIZE.NARROW
+};
 var COLUMN_GROUP_BURYABLE = {
 	title:"Buried", field:"buried", align:"center", sorter:"boolean", formatter: "tickCross", width: COLUMN_SIZE.NARROW, visible: SHOW_BURIED_CARDS
 };
@@ -228,5 +242,20 @@ var COLUMN_GROUP_TOKEN_DETAILS = {
 
 function headerFormatter(value, count, data, group){
 	return (value ? "Cards in Play/Tokens in Play" : "Cards in Deck/Tokens in Reserve")
-		+ "<span style='color:#d00; margin-left:10px;'>(" + count + " item)</span>";
+		+ "<span style='color:#d00; margin-left:10px;'>("
+		+ count + " item" + plural(count) + ")</span>";
+}
+
+function skillHeaderFormatter(value, count, data, group){
+	var strength = 0;
+	for(var i=0; i<data.length; ++i){
+		strength += data[i].value;
+	}
+	return value
+		+ " <span style='color:#d00; margin-left:10px;'>(" + strength + " point" + plural(strength)
+		+ ", " + count + " item" + plural(count) + ")</span>";
+}
+
+function plural(count){
+	return count > 1 ? "s" : "";
 }

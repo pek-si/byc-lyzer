@@ -11,6 +11,71 @@ var d = {
 	"loyaltyNames" : ["You Are NOT A Cylon", "You Are NOT A Cylon", "You Are NOT A Cylon", "You Are NOT A Cylon", "You Are NOT A Cylon", "You Are NOT A Cylon", "You Are NOT A Cylon", "You Are NOT A Cylon", "You Are NOT A Cylon", "You Are NOT A Cylon", "You Are NOT A Cylon", "[col" + "or=red]You are a Cylon - Can Send a Character to Sickbay[/col" + "or]", "[col" + "or=red]You are a Cylon - Can Send a Character to the Brig[/col" + "or]", "[col" + "or=red]You are a Cylon - Can Reduce Morale by 1[/col" + "or]", "[col" + "or=red]You are a Cylon - Can Damage Galactica[/col" + "or]", "You Are A Sympathizer", "You Are NOT A Cylon", "You Are A Sympathetic Cylon", "[col" + "or=red]You are a Cylon - Can Make Players Draw Treachery[/col" + "or]", "You Are NOT A Cylon", "You Are NOT A Cylon", "You Are NOT A Cylon", "You Are NOT A Cylon", "You Are NOT A Cylon", "[col" + "or=green]Personal Goal - Stand and Fight: 10 or More Raiders (else -1 Population)[/col" + "or]", "[col" + "or=green]Personal Goal - Sacrifice: 6 Vipers Damaged or Destroyed (else -1 Fuel)[/col" + "or]", "[col" + "or=green]Personal Goal - Devastation: Admiral has no Remaining Nuke Tokens (else -1 Morale)[/col" + "or]", "[col" + "or=green]Personal Goal - Use Caution: The Fleet has made a 1-Distance Jump (else -1 Population)[/col" + "or]", "[col" + "or=green]Personal Goal - Acquire Power: 2 or More Title Cards at the Same Time (else -1 Food)[/col" + "or]", "[col" + "or=green]Personal Goal - Political Intrigue: The President is in the Brig (else -1 Food)[/col" + "or]", "[col" + "or=green]Personal Goal - Selfish: Discard Skill Cards Equal to 20 Strength (else -1 Fuel)[/col" + "or]", "[col" + "or=green]Personal Goal - Self-Destruction: In the Brig or Sickbay (else -1 Morale)[/col" + "or]", "[col" + "or=darkgreen]Final Five - Whoever Examines this Card is Executed[/col" + "or]", "[col" + "or=darkgreen]Final Five - If this Card is Examined, Cylon Ships are Activated[/col" + "or]", "[col" + "or=darkgreen]Final Five - If this Card is Examined, Galactica is Damaged Twice[/col" + "or]", "[col" + "or=darkgreen]Final Five - If this Card is Examined, You are Executed[/col" + "or]", "[col" + "or=darkgreen]Final Five - Whoever Examines this Card is Sent to the \"Brig\"[/col" + "or]", "[col" + "or=red]You are a Cylon - Can Place a Centurion Token on the Boarding Party Track[/col" + "or]", "[col" + "or=red]You are a Cylon - Can Decrease the Jump Preparation Track by 2[/col" + "or]", "You Are NOT A Cylon", "You Are the Mutineer", "[col" + "or=blue]Human Agenda: Convert the Infidels[/col" + "or]", "[col" + "or=blue]Human Agenda: Join the Colonials[/col" + "or]", "[col" + "or=blue]Human Agenda: Guide them to Destiny[/col" + "or]", "[col" + "or=blue]Human Agenda: Prove their Worth[/col" + "or]", "[col" + "or=brown]Cylon Agenda: The Illusion of Hope[/col" + "or]", "[col" + "or=brown]Cylon Agenda: Salvage Their Equipment[/col" + "or]", "[col" + "or=brown]Cylon Agenda: Show Their True Nature[/col" + "or]", "[col" + "or=brown]Cylon Agenda: Siege Warfare[/col" + "or]", "[col" + "or=brown]Cylon Agenda: Reduce Them To Ruins[/col" + "or]", "[col" + "or=brown]Cylon Agenda: Genocide[/col" + "or]", "[col" + "or=blue]Human Agenda: Grant Mercy[/col" + "or]", "[col" + "or=blue]Human Agenda: Mutual Annihilation[/col" + "or]", "[col" + "or=blue]Human Allegiance: End the Chase[/col" + "or]", "[col" + "or=blue]Human Allegiance: Make an Ally[/col" + "or]", "[col" + "or=blue]Human Allegiance: Remove the Threat[/col" + "or]", "[col" + "or=blue]Human Allegiance: Improve Efficiency[/col" + "or]", "[col" + "or=blue]Human Allegiance: Learn to Cherish[/col" + "or]", "[col" + "or=blue]Human Allegiance: Pressure their Leaders[/col" + "or]", "[col" + "or=blue]Human Allegiance: Keep them Docile[/col" + "or]", "[col" + "or=brown]Cylon Allegiance: A Justified Response[/col" + "or]", "[col" + "or=brown]Cylon Allegiance: No Unnecessary Force[/col" + "or]", "[col" + "or=brown]Cylon Allegiance: Savor Their Demise[/col" + "or]", "[col" + "or=brown]Cylon Allegiance: Fight With Honor[/col" + "or]", "[col" + "or=brown]Cylon Allegiance: Subjects for Study[/col" + "or]", "[col" + "or=brown]Cylon Allegiance: A False Sense of Security[/col" + "or]", "[col" + "or=brown]Cylon Allegiance: Harvest Their Resources[/col" + "or]"]
 }
 
+function cardValue(id, z) {
+	if(!!!z){
+		z = {};
+	}
+
+	var mod = id % 35;
+	if (Math.floor(id / 35) === 5) {
+		if (z.daybreak) {
+			if (mod >= 23) {
+				return 5;
+			} else if (mod >= 20) {
+				return 4;
+			} else if (mod >= 12) {
+				return 3;
+			} else {
+				return 0;
+			}
+		} else if (z.pegasus) {
+			if (mod >= 20) {
+				return 3;
+			} else if (mod >= 12) {
+				return 2;
+			} else {
+				return 1;
+			}
+		}
+	}
+	switch (mod) {
+	case 34:
+	case 25:
+	case 20:
+		return 5;
+	case 33:
+	case 24:
+		return 4;
+	case 32:
+	case 23:
+		return 3;
+	case 31:
+	case 30:
+	case 28:
+	case 27:
+	case 26:
+		return 0;
+	case 29:
+		return 6;
+	case 22:
+		return 2;
+	case 21:
+		return 1;
+	default:
+		if (mod >= 18) {
+			return 4;
+		} else if (mod >= 14) {
+			return 3;
+		} else if (mod >= 8) {
+			return 2;
+		} else if (mod >= 0) {
+			return 1;
+		} else {
+			return -1;
+		}
+	}
+}
+
 function cardName(id, z) {
 	if(!!!z){
 		z = {};
