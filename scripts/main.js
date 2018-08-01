@@ -263,7 +263,7 @@ function parseData(data){
 	}else{
 		$(".daybreak").hide();
 	}
-	if(data.destination === "Earth"){
+	if(data.destination.indexOf("Earth") >= 0){	//destination is Earth OR Ionian Earth
 		var activeMission = data.activeMission ? [data.activeMission] : null;
 		missionData = parseTokens({hands: activeMission, discards: data.missionDiscards, deck: data.missionDeck},
 				TOKEN_TYPE.MISSION, showPrivateData);
