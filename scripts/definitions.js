@@ -160,6 +160,14 @@ MutinyCard.prototype = Object.create(MultiHandCard.prototype);
 Object.assign(MutinyCard.prototype, Buryable.prototype);
 MutinyCard.prototype.constructor = MutinyCard;
 
+// Mission Card class
+var MissionCard = function(identifier, name){
+	SingleHandCard.call(this, identifier, name);
+	Buryable.call(this);
+}
+MissionCard.prototype = Object.create(SingleHandCard.prototype);
+Object.assign(MissionCard.prototype, Buryable.prototype);
+MissionCard.prototype.constructor = MissionCard;
 
 /**
  * DEFINITIONS
@@ -180,6 +188,7 @@ var TOKEN_TYPE = {
 	DAMAGE: "damage",
 	DESTINATION: "destination",
 	LOYALTY: "loyalty",
+	MISSION: "mission",
 	MUTINY: "mutiny",
 	SHIP: "ship",
 	SKILL: "skill",
@@ -224,7 +233,7 @@ var COLUMN_GROUP_PLAYABLE = {
 	title:"In Hand", field:"inPlay", align:"center", sorter:"boolean", formatter: "tickCross", width: COLUMN_SIZE.NARROW
 };
 var COLUMN_GROUP_OWNABLE = {
-	title:"Player", field:"owner", width: COLUMN_SIZE.WIDE
+	title:"Player", field:"owner", width: COLUMN_SIZE.MEDIUM
 };
 var COLUMN_GROUP_SKILL = {
 	title:"Value", field:"value", align:"right", sorter:"number", width: COLUMN_SIZE.NARROW

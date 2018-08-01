@@ -32,6 +32,7 @@ var tables = [
 	{id: "destiny", title: "Destiny", expansion: "basegame",  privateDataTable: true},
 	{id: "skill-hand", title: "Skill Cards (Players)", expansion: "basegame", privateDataTable: true},
 	{id: "mutiny", title: "Mutiny Cards (Daybreak)", expansion: "daybreak"},
+	{id: "mission", title: "Mission Deck (Daybreak)", expansion: "daybreak earth"},
 ];
 
 function init(){
@@ -153,6 +154,14 @@ function setupTables(){
 				jQuery.extend(true, {}, COLUMN_GROUP_TOKEN_DETAILS)
 			],
 		}, DEFAULT_OPTIONS);
+	var missionOptions = jQuery.extend(true, {
+			columns:[
+				jQuery.extend(true, {}, COLUMN_GROUP_TOKEN),
+				jQuery.extend(true, {}, COLUMN_GROUP_PLAYABLE),
+				jQuery.extend(true, {}, COLUMN_GROUP_BURYABLE),
+				jQuery.extend(true, {}, COLUMN_GROUP_TOKEN_DETAILS)
+			],
+		}, DEFAULT_OPTIONS);
 	
 	//modify some titles & options
 	crisisOptions.columns[0].columns[0].title="Turn";
@@ -176,6 +185,8 @@ function setupTables(){
 	damageOptions.columns[0].columns[0].width=COLUMN_SIZE.MEDIUM;
 	damageOptions.height=null;
 	mutinyOptions.height=null;
+	missionOptions.height=null;
+	missionOptions.columns[1].title="Active";
 	
 	//tabulate
 	tabulate("crisis", crisisOptions);
@@ -189,6 +200,7 @@ function setupTables(){
 	tabulate("destiny", destinyOptions);
 	tabulate("damage", damageOptions);
 	tabulate("mutiny", mutinyOptions);
+	tabulate("mission", missionOptions);
 }
 
 function btnAnalyze(){
@@ -241,6 +253,7 @@ function parseData(data){
 			TOKEN_TYPE.SKILL, showPrivateData, {daybreak: data.daybreak, pegasus: data.pegasus});
 	
 	var mutinyData = null; //parsed just a bit later
+	var missionData = null; //parsed just a bit later
 	
 	//Daybreak specific data
 	if(data.daybreak){
@@ -249,6 +262,14 @@ function parseData(data){
 		$(".daybreak").show();
 	}else{
 		$(".daybreak").hide();
+	}
+	if(data.destination === "Earth"){
+		var activeMission = data.activeMission ? [data.activeMission] : null;
+		missionData = parseTokens({hands: activeMission, discards: data.missionDiscards, deck: data.missionDeck},
+				TOKEN_TYPE.MISSION, showPrivateData);
+		$(".daybreak.earth").show();
+	}else{
+		$(".daybreak.earth").hide();
 	}
 	
 	//hide/show certain tables
@@ -269,6 +290,7 @@ function parseData(data){
 	setTableData("skill-hand", skillHandData);
 	setTableData("destiny", destinyData);
 	setTableData("mutiny", mutinyData);
+	setTableData("mission", missionData);
 	
 	//TODO data.basestarDamage
 	//TODO data skillCardDecks; skillCardDiscards;	///	skillCheckCards
@@ -287,7 +309,9 @@ function parseTokens(data, cardType, showPrivateData, extraData){
 	var inDeck = data.deck ? data.deck : [];
 	
 	if(!Boolean(showPrivateData)){	//eliminates disclosure of secret information
-		handArray = [];
+		if(cardType !== TOKEN_TYPE.MISSION){	//except in this case (active missions)
+			handArray = [];
+		}
 		inDeck = [];
 	}
 	
@@ -366,6 +390,9 @@ function parseToken(type, tokenId, extraData){
 		case TOKEN_TYPE.LOYALTY:
 			var name = String(d.loyaltyNames[tokenId]).replace(/(?:\[(.+?)\])/g, '');
 			token = new MultiHandCard(tokenId, name);
+			break;
+		case TOKEN_TYPE.MISSION:
+			token = new MissionCard(tokenId, d.crisisNames[tokenId]);
 			break;
 		case TOKEN_TYPE.MUTINY:
 			token = new MutinyCard(tokenId, d.mutinyNames[tokenId]);

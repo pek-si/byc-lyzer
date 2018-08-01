@@ -23,6 +23,7 @@ The following cards and tokens are supported by BYC-lyzer:
 - Destiny (end of game)
 - Skill Cards, player hands (end of game)
 - Mutiny Cards (Daybreak)
+- Mission Deck (Daybreak)
 
 The *Site Information* button will display this information in a dialog window. There are options to *Close* the dialog, *Opt-in for Persistent Data*, and *Clear Data*. The latter two options are related to the data usage of the web-site. The latest analyzed seed is always stored in the browser storage. BYC-lyzer operates completely on the client side (i.e. a browser) so no data is exchanged with other services.
 
@@ -63,3 +64,4 @@ This tool is inspired by the [Battlestar Galactica: The Board Game][ffg] created
 ### Version History
 - 0.9.0: Initial release
 - 0.9.1: Added tables for DRADIS and Civilians. Value of a skill card is displayed.
+- 0.9.2: Added table for Mission Deck.
