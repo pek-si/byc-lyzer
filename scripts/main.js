@@ -61,7 +61,7 @@ function init(){
 
 function setupHtml(){
 	var parentElement = document.getElementById("tables");
-	for(var i=0; i < tables.length; ++i){
+	for(var i in tables){
 		var tableData = tables[i];
 		var formGroup = document.createElement("div");
 		var label = document.createElement("label");
@@ -416,11 +416,16 @@ function parseToken(type, tokenId, extraData){
 }
 
 function combineCivilianData(data, showPrivateData){
-	var civilians = { hands: [], discards: data.destroyedCivilians, deck: [] };
+	var civilians = { hands: [], discards: [], deck: [] };
+	if(!data.spaceCivilians){
+		return civilians;
+	}else{
+		civilians.discards = data.destroyedCivilians;
+	}
 
-	for(var i=0; i<data.spaceCivilians.length; ++i){
+	for(var i in data.spaceCivilians){
 		var civs = data.spaceCivilians[i];
-		for(var j=0; j<civs.length; ++j){
+		for(var j in civs){
 			var civ = civs[j];
 			var civId;
 			if(showPrivateData){
@@ -432,7 +437,7 @@ function combineCivilianData(data, showPrivateData){
 		}
 	}
 	var letters = jQuery.extend(true, [], data.civilianLetters);
-	for(var i=data.civilianPile.length-1; i >= 0; --i){
+	for(var i=data.civilianPile.length-1; i >= 0; --i){	//inverse order
 		var civ = data.civilianPile[i];
 		var civId;
 		if(showPrivateData){
@@ -450,44 +455,22 @@ function combineDradisData(data){
 
 	for(var i=1; i<7; ++i){
 		var sector = [];
-		for(var j=0; j<data.basestars.length; ++j){
-			if(data.basestars[j] == i){
-				sector.push("B_"+j);
+		dradisHelper(i, sector, "B_", data.basestars);
+		dradisHelper(i, sector, "H_", data.heavies);
+		dradisHelper(i, sector, "R_", data.raiders);
+		//check character locations in this sector
+		var charactersInSpace = [];
+		for(var character in data.playerLocations){
+			if(data.playerLocations[character] == "Sector "+i){	//a character is in space (hopefully in a space ship.)
+				//check the name of that player
+				charactersInSpace.push(data.players[character]);
 			}
 		}
-		for(var j=0; j<data.heavies.length; ++j){
-			if(data.heavies[j] == i){
-				sector.push("H_"+j);
-			}
-		}
-		for(var j=0; j<data.raiders.length; ++j){
-			if(data.raiders[j] == i){
-				sector.push("R_"+j);
-			}
-		}
-		if(data.daybreak){
-			for(var j=0; j<data.assaultRaptors.length; ++j){
-				if(data.assaultRaptors[j] == i){
-					sector.push("AR_"+j);
-				}
-			}
-		}
-		if(data.CFB){
-			for(var j=0; j<data.vipersII.length; ++j){
-				if(data.vipersVII[j] == i){
-					sector.push("V7_"+j);
-				}
-			}
-		}
-		for(var j=0; j<data.vipersII.length; ++j){
-			if(data.vipersII[j] == i){
-				sector.push("V2_"+j);
-			}
-		}
-		var civs = data.spaceCivilians[i-1];
-		for(var j=0; j<civs.length; ++j){
-			var civId = "C_" + civs[j][0];
-			sector.push(civId);
+		dradisHelper(i, sector, "AR_", data.assaultRaptors, charactersInSpace);
+		dradisHelper(i, sector, "V7_", data.vipersVII, charactersInSpace);
+		dradisHelper(i, sector, "V2_", data.vipersII, charactersInSpace);
+		if(data.spaceCivilians){
+			dradisHelper(i, sector, "C_", data.spaceCivilians[i-1]);	//civilian ship array begins from 0
 		}
 		ships.discards.push(sector);
 		ships.owner.push("Sector "+i);
@@ -515,10 +498,14 @@ function setTableData(tableId, data){
 function shipName(id){
 	var shipId = id.match(/[a-z]{1,2}\d{0,1}/i)[0];
 	var shipName;
+	var characterName = "";
+	if(id.indexOf("#") == 4){	//special case for piloted vipers
+		characterName = " (" + id.substring(5) + ")";
+	}
 	switch(shipId){
-		case "V2": shipName = "Viper Mark II"; break;
-		case "V7": shipName = "Viper Mark VII"; break;
-		case "AR": shipName = "Assault Raptor"; break;
+		case "V2": shipName = "Viper Mark II" + characterName; break;
+		case "V7": shipName = "Viper Mark VII" + characterName; break;
+		case "AR": shipName = "Assault Raptor" + characterName; break;
 		case "C": shipName = "Civilian " + id.substring(2); break;
 		case "R": shipName = "Raider"; break;
 		case "H": shipName = "Heavy Raider"; break;
@@ -528,6 +515,23 @@ function shipName(id){
 		default: shipName = "Unknown"; break;
 	}
 	return shipName;
+}
+
+function dradisHelper(sectorId, sectorArray, shipPrefix, shipData, charactersInSpaceArray){
+	for(var shipIndex in shipData){
+		if(shipPrefix === "C_"){	//special case for handling the civilians
+			var civId = "C_" + shipData[shipIndex][0];
+			sectorArray.push(civId);
+		}else if(shipData[shipIndex] == sectorId){
+			sectorArray.push(shipPrefix+shipIndex);
+		}else if(charactersInSpaceArray){		//another special case for players in space
+			for(var character in charactersInSpaceArray){
+				if(shipData[shipIndex] == charactersInSpaceArray[character]){
+					sectorArray.push(shipPrefix+shipIndex+"#"+shipData[shipIndex]);
+				}
+			}
+		}
+	}
 }
 
 /**

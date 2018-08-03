@@ -65,3 +65,4 @@ This tool is inspired by the [Battlestar Galactica: The Board Game][ffg] created
 - 0.9.0: Initial release
 - 0.9.1: Added tables for DRADIS and Civilians. Value of a skill card is displayed.
 - 0.9.2: Added table for Mission Deck.
+- 0.9.3: Fixed an issue with piloted vipers.
