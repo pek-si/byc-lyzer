@@ -211,6 +211,7 @@ var DEFAULT_OPTIONS = {
 	persistenceMode: true,
 	placeholder: NO_DATA,
 	resizableColumns: false,
+	resizableRows: false,
 	selectableRollingSelection: false,
 	selectablePersistence: false,
 	tooltips:true,
