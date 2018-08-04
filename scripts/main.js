@@ -209,29 +209,44 @@ function btnAnalyze(){
 	if(matched){
 		stored = matched[0];
 	}else{
-		return;
+		setGameStatusText("Did not find a suitable seed");
+		return false;
 	}
+
 	var unparsed = stored.replace(/-/g,'');
 	var seed = window.atob(unparsed);
-	var data = JSON.parse(seed);
-	
+	var data = null
+	try{
+		data = JSON.parse(seed);
+	}catch(e){
+		setGameStatusText("Could not parse the seed");
+		return false;
+	}
+
+	//check if the game is still being in the setup phase
+	if(data.gameSetup){
+		setGameStatusText("Game is in the setup phase");
+		return false;
+	}
+
 	//success, store and update input element
 	setSeed(stored);
 	$("#input-seed").val(stored);
 	parseData(data);
+	return true;
 }
 
 function parseData(data){
 	var showPrivateData = false;
 	if(data.gameOver){
-		$("#game-status").text("Finished");
+		setGameStatusText("Finished");
 		showPrivateData = true;
 	}else{
 		if(OVERRIDE_SAFETY){
-			$("#game-status").text("In progress (secret data included)");
+			setGameStatusText("In progress (secret data included)");
 			showPrivateData = true;
 		}else{
-			$("#game-status").text("In progress (public data shown)");
+			setGameStatusText("In progress (public data shown)");
 			showPrivateData = false;
 		}
 	}
@@ -583,6 +598,10 @@ function moreInformationModal(event) {
 			});
 		}
 	}
+}
+
+function setGameStatusText(message){
+	$("#game-status").text(message);
 }
 
 function setSeed(seed){
