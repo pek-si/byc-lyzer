@@ -206,6 +206,7 @@ function setupTables(){
 function btnAnalyze(){
 	var matched = $("#input-seed").val().match(/(\S{0,20}\-)+/);
 	var stored = null;
+	$("#btnExport").hide();
 	if(matched){
 		stored = matched[0];
 	}else{
@@ -236,12 +237,19 @@ function btnAnalyze(){
 	return true;
 }
 
+function btnExport(){
+	if(exporter){
+		exporter.init($("body"), _staticData.tableHandles);
+	}
+}
+
 function parseData(data){
 	var showPrivateData = false;
 	var turnInfo = "Turn " + data.round + "." + (data.turn+1) + ": ";
 	if(data.gameOver){
 		setGameStatusText(turnInfo + "Finished");
 		showPrivateData = true;
+		$("#btnExport").show();
 	}else{
 		if(OVERRIDE_SAFETY){
 			setGameStatusText(turnInfo + "In progress (secret data included)");
@@ -508,6 +516,8 @@ function tabulate(tableId, options){
 function setTableData(tableId, data){
 	if(data){
 		_staticData.tableHandles[tableId].tabulator("setData", data);
+	}else{
+		_staticData.tableHandles[tableId].tabulator("clearData");
 	}
 }
 

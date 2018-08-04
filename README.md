@@ -5,7 +5,7 @@ BYC-lyzer is a simplistic tool for displaying the game state information on seed
 Disclaimer: You should own the game before using this tool in order to minimize issues with the creator of the game, FFG (Fantasy Flight Games).
 
 ### Usage
-Open the web-site ([index.html](index.html)) in your favourite browser. I have tested it with a desktop Chromium, but it should work on other modern browsers just as well. Browsers on mobile devices might work too but prepare to scroll a lot.
+Open the web-site ([index.html](index.html)) in your favourite browser. I have tested it with a desktop Chromium, but it should work on other modern browsers just as well. Browsers on mobile devices should work too but prepare to scroll a lot.
 
 Copy and paste the game seed into the text area *BYC Current Seed* and click *Analyze* button. If everything went OK, you should see the Game status, and publicly available information. If the game is over, also the secret information is disclosed. Text area *BYC Initial Seed* is used for tracking buried cards, but that feature is not yet available.
 
@@ -66,3 +66,4 @@ This tool is inspired by the [Battlestar Galactica: The Board Game][ffg] created
 - 0.9.1: Added tables for DRADIS and Civilians. Value of a skill card is displayed.
 - 0.9.2: Added table for Mission Deck.
 - 0.9.3: Fixed an issue with piloted vipers.
+- 0.9.4: Added a feature to export 'End of Game Analysis'.
