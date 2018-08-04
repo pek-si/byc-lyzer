@@ -238,15 +238,16 @@ function btnAnalyze(){
 
 function parseData(data){
 	var showPrivateData = false;
+	var turnInfo = "Turn " + data.round + "." + (data.turn+1) + ": ";
 	if(data.gameOver){
-		setGameStatusText("Finished");
+		setGameStatusText(turnInfo + "Finished");
 		showPrivateData = true;
 	}else{
 		if(OVERRIDE_SAFETY){
-			setGameStatusText("In progress (secret data included)");
+			setGameStatusText(turnInfo + "In progress (secret data included)");
 			showPrivateData = true;
 		}else{
-			setGameStatusText("In progress (public data shown)");
+			setGameStatusText(turnInfo + "In progress (public data shown)");
 			showPrivateData = false;
 		}
 	}
