@@ -453,7 +453,7 @@ function combineCivilianData(data, showPrivateData){
 			var civ = civs[j];
 			var civId;
 			if(showPrivateData){
-				civId = civ[1] + " (Civilian " + civ[0] + "; Sector "+(i+1)+")";
+				civId = civ[1] + " (Civilian " + civ[0] + "; Sector "+(Number(i)+1)+")"; //Sector count begins from 1
 			}else{
 				civId = "Civilian " + civ[0];
 			}
