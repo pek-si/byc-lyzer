@@ -20,6 +20,8 @@ var _staticData = {
 	tableHandles: {}
 }
 
+var bycAnalyzer = new BycAnalyzer();
+
 var tables = [
 	{id: "crisis", title: "Crises", expansion: "basegame"},
 	{id: "destination", title: "Destinations", expansion: "basegame"},
@@ -259,38 +261,33 @@ function parseData(data){
 			showPrivateData = false;
 		}
 	}
+	bycAnalyzer.setIncludePrivateData(showPrivateData);
 	
 	//Base game data
-	var crisisData = parseTokens({discards: data.crisisDiscards, deck: data.crisisDeck}, TOKEN_TYPE.CRISIS, showPrivateData);
-	var destinationData = parseTokens({discards: data.destinationDiscards, deck: data.destinationDeck}, TOKEN_TYPE.DESTINATION, showPrivateData);
-	var quorumData = parseTokens({hands: data.quorumHand, discards: data.quorumDiscards, deck: data.quorumDeck}, TOKEN_TYPE.QUORUM, showPrivateData);
-	var damageData = parseTokens({discards: data.damagedLocations, deck: data.damage}, TOKEN_TYPE.DAMAGE, showPrivateData);
-	var superData = parseTokens({hands: data.superCrisisHands, discards: data.superCrisisDiscards, deck: data.superCrisisDeck, owner: data.players},
-			TOKEN_TYPE.SUPER_CRISIS, showPrivateData);
-	var loyaltyData = parseTokens({hands: data.loyaltyHands, discards: data.loyaltyDiscards, deck: data.loyaltyDeck, owner: data.players}, 
-			TOKEN_TYPE.LOYALTY, showPrivateData);
-	var dradisData = parseTokens(combineDradisData(data), TOKEN_TYPE.SHIP, showPrivateData);
-	var civilianData = parseTokens(combineCivilianData(data, showPrivateData), TOKEN_TYPE.CIVILIAN, showPrivateData);
-	var skillHandData = parseTokens({hands: data.skillCardHands, discards: [], deck: [], owner: data.players}, 
-			TOKEN_TYPE.SKILL, showPrivateData, {daybreak: data.daybreak, pegasus: data.pegasus});
-	var destinyData = parseTokens({deck: data.destiny}, 
-			TOKEN_TYPE.SKILL, showPrivateData, {daybreak: data.daybreak, pegasus: data.pegasus});
+	var crisisData = bycAnalyzer.parseTokens({discards: data.crisisDiscards, deck: data.crisisDeck}, TOKEN_TYPE.CRISIS);
+	var destinationData = bycAnalyzer.parseTokens({discards: data.destinationDiscards, deck: data.destinationDeck}, TOKEN_TYPE.DESTINATION);
+	var quorumData = bycAnalyzer.parseTokens({hands: data.quorumHand, discards: data.quorumDiscards, deck: data.quorumDeck}, TOKEN_TYPE.QUORUM);
+	var damageData = bycAnalyzer.parseTokens({discards: data.damagedLocations, deck: data.damage}, TOKEN_TYPE.DAMAGE);
+	var superData = bycAnalyzer.parseTokens({hands: data.superCrisisHands, discards: data.superCrisisDiscards, deck: data.superCrisisDeck, owner: data.players}, TOKEN_TYPE.SUPER_CRISIS);
+	var loyaltyData = bycAnalyzer.parseTokens({hands: data.loyaltyHands, discards: data.loyaltyDiscards, deck: data.loyaltyDeck, owner: data.players}, TOKEN_TYPE.LOYALTY);
+	var dradisData = bycAnalyzer.parseTokens(bycAnalyzer.combineDradisData(data), TOKEN_TYPE.SHIP);
+	var civilianData = bycAnalyzer.parseTokens(bycAnalyzer.combineCivilianData(data), TOKEN_TYPE.CIVILIAN);
+	var skillHandData = bycAnalyzer.parseTokens({hands: data.skillCardHands, discards: [], deck: [], owner: data.players}, TOKEN_TYPE.SKILL, {daybreak: data.daybreak, pegasus: data.pegasus});
+	var destinyData = bycAnalyzer.parseTokens({deck: data.destiny}, TOKEN_TYPE.SKILL, {daybreak: data.daybreak, pegasus: data.pegasus});
 	
 	var mutinyData = null; //parsed just a bit later
 	var missionData = null; //parsed just a bit later
 	
 	//Daybreak specific data
 	if(data.daybreak){
-		mutinyData = parseTokens({hands: data.mutinies, discards: data.mutinyDiscards, deck: data.mutinyDeck, owner: data.players}, 
-				TOKEN_TYPE.MUTINY, showPrivateData);
+		mutinyData = bycAnalyzer.parseTokens({hands: data.mutinies, discards: data.mutinyDiscards, deck: data.mutinyDeck, owner: data.players},	TOKEN_TYPE.MUTINY);
 		$(".daybreak").show();
 	}else{
 		$(".daybreak").hide();
 	}
 	if(data.destination.indexOf("Earth") >= 0){	//destination is Earth OR Ionian Earth
 		var activeMission = data.activeMission ? [data.activeMission] : null;
-		missionData = parseTokens({hands: activeMission, discards: data.missionDiscards, deck: data.missionDeck},
-				TOKEN_TYPE.MISSION, showPrivateData);
+		missionData = bycAnalyzer.parseTokens({hands: activeMission, discards: data.missionDiscards, deck: data.missionDeck}, TOKEN_TYPE.MISSION);
 		$(".daybreak.earth").show();
 	}else{
 		$(".daybreak.earth").hide();
@@ -316,192 +313,11 @@ function parseData(data){
 	setTableData("mutiny", mutinyData);
 	setTableData("mission", missionData);
 	
-	//TODO data.basestarDamage
+	//TODO data.basestarDamage; data.pegasusDamage
 	//TODO data skillCardDecks; skillCardDiscards;	///	skillCheckCards
-	//TODO data.dieRolls
 	//TODO ionian 		data traumaPile; sickbayTrauma; brigTrauma; allyDeck & allies?
 	//TODO new caprica 	data lockedCivilians; preparedCivilians
 }
-
-function parseTokens(data, cardType, showPrivateData, extraData){
-	var turn = 1;
-	var tableData = [];
-	var buried;
-	var ownerArray = data.owner ? data.owner : [];
-	var handArray = data.hands ? data.hands : [];
-	var discarded = data.discards ? data.discards : [];
-	var inDeck = data.deck ? data.deck : [];
-	
-	if(!Boolean(showPrivateData)){	//eliminates disclosure of secret information
-		if(cardType !== TOKEN_TYPE.MISSION){	//except in this case (active missions)
-			handArray = [];
-		}
-		inDeck = [];
-	}
-	
-	for(var i=0; i < handArray.length; ++i){	//natural order
-		if(handArray[i] instanceof Array){
-			var oneHand = handArray[i];
-			for(var j=0; j < oneHand.length; ++j){
-				var card = parseToken(cardType, oneHand[j], extraData);
-				if(card){
-					card.setOrdinal(turn++);
-					card.setDiscarded(true);
-					card.setOwner(ownerArray[i]);
-					card.setInPlay(true);
-					tableData.push(card.toData());		
-				}
-			}
-		}else{
-			var card = parseToken(cardType, handArray[i], extraData);
-			if(card){
-				card.setOrdinal(turn++);
-				card.setDiscarded(true);
-				card.setInPlay(true);
-				tableData.push(card.toData());
-			}
-		}
-	}
-	for(var i=0; i < discarded.length; ++i){	//natural order
-		if(discarded[i] instanceof Array){
-			var oneHand = discarded[i];
-			for(var j=0; j < oneHand.length; ++j){
-				var card = parseToken(cardType, oneHand[j], extraData);
-				if(card){
-					card.setOrdinal(turn++);
-					card.setDiscarded(true);
-					card.setOwner(ownerArray[i]);
-					card.setInPlay(false);
-					tableData.push(card.toData());		
-				}
-			}
-		}else{
-			var card = parseToken(cardType, discarded[i], extraData);
-			if(card){
-				card.setOrdinal(turn++);
-				card.setDiscarded(true);
-				tableData.push(card.toData());		
-			}
-		}
-	}
-	for(var i=inDeck.length-1; i >= 0; --i){	//inverse order
-		var card = parseToken(cardType, inDeck[i], extraData);
-		if(card){
-			card.setOrdinal(turn++);
-			card.setDiscarded(false);
-			tableData.push(card.toData());		
-		}
-	}
-	
-	return tableData;
-}
-
-function parseToken(type, tokenId, extraData){
-	var token = null;
-	switch(type){
-		case TOKEN_TYPE.CIVILIAN:
-			token = new Ship(tokenId, tokenId);
-			break;
-		case TOKEN_TYPE.CRISIS:
-			token = new CrisisCard(tokenId, d.crisisNames[tokenId], d.activation[tokenId], d.jumpIcon[tokenId]);
-			break;
-		case TOKEN_TYPE.DAMAGE:
-			token = new Token(tokenId, tokenId);
-			break;
-		case TOKEN_TYPE.DESTINATION:
-			token = new DestinationCard(tokenId, d.destinationNames[tokenId]);
-			break;
-		case TOKEN_TYPE.LOYALTY:
-			var name = String(d.loyaltyNames[tokenId]).replace(/(?:\[(.+?)\])/g, '');
-			token = new MultiHandCard(tokenId, name);
-			break;
-		case TOKEN_TYPE.MISSION:
-			token = new MissionCard(tokenId, d.crisisNames[tokenId]);
-			break;
-		case TOKEN_TYPE.MUTINY:
-			token = new MutinyCard(tokenId, d.mutinyNames[tokenId]);
-			break;
-		case TOKEN_TYPE.SHIP:
-			token = new Ship(tokenId, shipName(tokenId));
-			break;
-		case TOKEN_TYPE.SKILL:
-			token = new SkillCard(tokenId, cardName(tokenId, extraData), cardValue(tokenId, extraData));
-			break;
-		case TOKEN_TYPE.SUPER_CRISIS:
-			token = new MultiHandCard(tokenId, d.crisisNames[tokenId]);
-			break;
-		case TOKEN_TYPE.QUORUM:
-			token = new QuorumCard(tokenId, d.quorumNames[tokenId]);
-			break;
-		default:
-			break;
-	}
-	return token;
-}
-
-function combineCivilianData(data, showPrivateData){
-	var civilians = { hands: [], discards: [], deck: [] };
-	if(!data.spaceCivilians){
-		return civilians;
-	}else{
-		civilians.discards = data.destroyedCivilians;
-	}
-
-	for(var i in data.spaceCivilians){
-		var civs = data.spaceCivilians[i];
-		for(var j in civs){
-			var civ = civs[j];
-			var civId;
-			if(showPrivateData){
-				civId = civ[1] + " (Civilian " + civ[0] + "; Sector "+(Number(i)+1)+")"; //Sector count begins from 1
-			}else{
-				civId = "Civilian " + civ[0];
-			}
-			civilians.hands.push(civId);
-		}
-	}
-	var letters = jQuery.extend(true, [], data.civilianLetters);
-	for(var i=data.civilianPile.length-1; i >= 0; --i){	//inverse order
-		var civ = data.civilianPile[i];
-		var civId;
-		if(showPrivateData){
-			civId = civ + " (Civilian " + letters.shift() + ")";
-		}else{
-			civId = "Civilian " + letters.shift();
-		}
-		civilians.deck.unshift(civId);
-	}
-	return civilians;
-}
-
-function combineDradisData(data){
-	var ships = { discards: [], owner: [] };
-
-	for(var i=1; i<7; ++i){
-		var sector = [];
-		dradisHelper(i, sector, "B_", data.basestars);
-		dradisHelper(i, sector, "H_", data.heavies);
-		dradisHelper(i, sector, "R_", data.raiders);
-		//check character locations in this sector
-		var charactersInSpace = [];
-		for(var character in data.playerLocations){
-			if(data.playerLocations[character] == "Sector "+i){	//a character is in space (hopefully in a space ship.)
-				//check the name of that player
-				charactersInSpace.push(data.players[character]);
-			}
-		}
-		dradisHelper(i, sector, "AR_", data.assaultRaptors, charactersInSpace);
-		dradisHelper(i, sector, "V7_", data.vipersVII, charactersInSpace);
-		dradisHelper(i, sector, "V2_", data.vipersII, charactersInSpace);
-		if(data.spaceCivilians){
-			dradisHelper(i, sector, "C_", data.spaceCivilians[i-1]);	//civilian ship array begins from 0
-		}
-		ships.discards.push(sector);
-		ships.owner.push("Sector "+i);
-	}
-	return ships;
-}
-
 
 /**
  * HELPER FUNCTIONS ET AL.
@@ -518,45 +334,6 @@ function setTableData(tableId, data){
 		_staticData.tableHandles[tableId].tabulator("setData", data);
 	}else{
 		_staticData.tableHandles[tableId].tabulator("clearData");
-	}
-}
-
-function shipName(id){
-	var shipId = id.match(/[a-z]{1,2}\d{0,1}/i)[0];
-	var shipName;
-	var characterName = "";
-	if(id.indexOf("#") == 4){	//special case for piloted vipers
-		characterName = " (" + id.substring(5) + ")";
-	}
-	switch(shipId){
-		case "V2": shipName = "Viper Mark II" + characterName; break;
-		case "V7": shipName = "Viper Mark VII" + characterName; break;
-		case "AR": shipName = "Assault Raptor" + characterName; break;
-		case "C": shipName = "Civilian " + id.substring(2); break;
-		case "R": shipName = "Raider"; break;
-		case "H": shipName = "Heavy Raider"; break;
-		case "B": shipName = "Basestar"; break;
-		case "O": shipName = "Occupation Force"; break;
-		case "L": shipName = "Launch Raiders"; break;
-		default: shipName = "Unknown"; break;
-	}
-	return shipName;
-}
-
-function dradisHelper(sectorId, sectorArray, shipPrefix, shipData, charactersInSpaceArray){
-	for(var shipIndex in shipData){
-		if(shipPrefix === "C_"){	//special case for handling the civilians
-			var civId = "C_" + shipData[shipIndex][0];
-			sectorArray.push(civId);
-		}else if(shipData[shipIndex] == sectorId){
-			sectorArray.push(shipPrefix+shipIndex);
-		}else if(charactersInSpaceArray){		//another special case for players in space
-			for(var character in charactersInSpaceArray){
-				if(shipData[shipIndex] == charactersInSpaceArray[character]){
-					sectorArray.push(shipPrefix+shipIndex+"#"+shipData[shipIndex]);
-				}
-			}
-		}
 	}
 }
 
