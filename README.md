@@ -63,7 +63,8 @@ This tool is inspired by the [Battlestar Galactica: The Board Game][ffg] created
 
 ### Version History
 - 0.9.0: Initial release
-- 0.9.1: Added tables for DRADIS and Civilians. Value of a skill card is displayed.
-- 0.9.2: Added table for Mission Deck.
+- 0.9.1: Added tables for DRADIS and Civilians. Value of a skill card is now displayed.
+- 0.9.2: Added a table for Mission Deck.
 - 0.9.3: Fixed an issue with piloted vipers.
 - 0.9.4: Added a feature to export 'End of Game Summary'.
+- 0.9.5: Added a feature to fill the seed input based on URL fragment.
