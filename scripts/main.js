@@ -17,7 +17,8 @@
 
 var _staticData = {
 	mdContent: null,
-	tableHandles: {}
+	tableHandles: {},
+	tableOptions: {}
 }
 
 var bycAnalyzer = new BycAnalyzer();
@@ -58,7 +59,7 @@ function init(){
 		$("#input-seed-initial").parent().hide();	
 	}
 	setupHtml();
-	setTimeout(setupTables, 200);
+	setupTables();
 }
 
 function setupHtml(){
@@ -74,6 +75,7 @@ function setupHtml(){
 		}
 		label.textContent = tableData.title;
 		table.id = "table-" + tableData.id;
+		table.textContent = "Table placeholder.";
 		formGroup.appendChild(label);
 		formGroup.appendChild(table);
 		parentElement.appendChild(formGroup);
@@ -190,19 +192,19 @@ function setupTables(){
 	missionOptions.height=null;
 	missionOptions.columns[1].title="Active";
 	
-	//tabulate
-	tabulate("crisis", crisisOptions);
-	tabulate("destination", destinationOptions);
-	tabulate("quorum", quorumOptions);
-	tabulate("super", superCrisisOptions);
-	tabulate("loyalty", loyaltyOptions);
-	tabulate("dradis", dradisOptions);
-	tabulate("civilian", civilianOptions);
-	tabulate("skill-hand", skillOptions);
-	tabulate("destiny", destinyOptions);
-	tabulate("damage", damageOptions);
-	tabulate("mutiny", mutinyOptions);
-	tabulate("mission", missionOptions);
+	//store table options
+	setTableOptions("crisis", crisisOptions);
+	setTableOptions("destination", destinationOptions);
+	setTableOptions("quorum", quorumOptions);
+	setTableOptions("super", superCrisisOptions);
+	setTableOptions("loyalty", loyaltyOptions);
+	setTableOptions("dradis", dradisOptions);
+	setTableOptions("civilian", civilianOptions);
+	setTableOptions("skill-hand", skillOptions);
+	setTableOptions("destiny", destinyOptions);
+	setTableOptions("damage", damageOptions);
+	setTableOptions("mutiny", mutinyOptions);
+	setTableOptions("mission", missionOptions);
 }
 
 function btnAnalyze(){
@@ -324,17 +326,30 @@ function parseData(data){
  **/
 
 function tabulate(tableId, options){
-	if(tableId && options){
+	if(tableId && options && _staticData.tableHandles[tableId] === undefined){
 		_staticData.tableHandles[tableId] = $("#table-"+tableId).tabulator(options);
 	}
 }
 
 function setTableData(tableId, data){
+	if(_staticData.tableHandles[tableId] === undefined){
+		tabulate(tableId, getTableOptions(tableId));	//prepare table
+	}
 	if(data){
 		_staticData.tableHandles[tableId].tabulator("setData", data);
 	}else{
 		_staticData.tableHandles[tableId].tabulator("clearData");
 	}
+}
+
+function setTableOptions(tableId, options){
+	if(tableId && options){
+		_staticData.tableOptions[tableId] = options;
+	}
+}
+
+function getTableOptions(tableId){
+	return _staticData.tableOptions[tableId];
 }
 
 /**
