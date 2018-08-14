@@ -60,6 +60,7 @@ function init(){
 	}
 	setupHtml();
 	setupTables();
+	getHashParameter();
 }
 
 function setupHtml(){
@@ -350,6 +351,19 @@ function setTableOptions(tableId, options){
 
 function getTableOptions(tableId){
 	return _staticData.tableOptions[tableId];
+}
+
+var getHashParameter = function(){
+	var hash = window.location.hash;
+	if(hash){
+		var parameters = hash.split("/");
+		if(parameters.length < 2){
+			return true;
+		}
+		if(parameters[1] == "seed"){
+			$("#input-seed").val(parameters[2]);
+		}
+	}
 }
 
 /**
