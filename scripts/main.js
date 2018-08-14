@@ -328,7 +328,17 @@ function parseData(data){
 
 function tabulate(tableId, options){
 	if(tableId && options && _staticData.tableHandles[tableId] === undefined){
-		_staticData.tableHandles[tableId] = $("#table-"+tableId).tabulator(options);
+		var id = "#table-"+tableId;
+		//make sure the parent element is made visible before trying to initialize tabulator element
+		//this must be done because otherwise table width, columns etc. will not be displayed correctly
+		var wasHidden = $(id).parent().is(":hidden");
+		if(wasHidden){ // table parent was hidden, make it visible temporarily
+			$(id).parent().show();
+		}
+		_staticData.tableHandles[tableId] = $(id).tabulator(options);
+		if(wasHidden){ // hide the table parent again once tabulator has finished
+			$(id).parent().hide();
+		}
 	}
 }
 
