@@ -135,6 +135,9 @@ BycAnalyzer.prototype.parseToken = function(type, tokenId, extraData){
 		case TOKEN_TYPE.SUPER_CRISIS:
 			token = new MultiHandCard(tokenId, d.crisisNames[tokenId]);
 			break;
+		case TOKEN_TYPE.TRAUMA:
+			token = new Trauma(tokenId, traumaName(tokenId));
+			break;
 		case TOKEN_TYPE.QUORUM:
 			token = new QuorumCard(tokenId, d.quorumNames[tokenId]);
 			break;
@@ -227,6 +230,47 @@ BycAnalyzer.prototype.combineDradisData = function(data){
 	return ships;
 }
 
+BycAnalyzer.prototype.combineTraumaData = function(data){
+	var traumaTokens = { hands: [], owner: [] };
+
+	if(data.benevolent && data.antagonistic && !data.lateCrossroads){
+		for(var player in data.players){
+			var playerTrauma = [];
+			for(var i=0; i < data.benevolent[player]; ++i){
+					playerTrauma.push(1);
+			}
+			for(var i=0; i < data.antagonistic[player]; ++i){
+					playerTrauma.push(0);
+			}
+			if(playerTrauma.length > 0){
+				traumaTokens.hands.push(playerTrauma);
+				traumaTokens.owner.push(data.players[player]);
+			}
+		}
+	}
+
+	var traumas = [];       //reordering the trauma pile for processing
+	for(var trauma in data.traumaPile){
+		traumas.unshift(data.traumaPile[trauma]);
+	}
+	traumaTokens.hands.push(traumas);
+	traumaTokens.owner.push("Trauma Tokens");
+
+	traumaTokens.hands.push([data.sickbayTrauma]);
+	traumaTokens.owner.push("Sickbay");
+
+	traumaTokens.hands.push([data.brigTrauma]);
+	traumaTokens.owner.push("Brig");
+
+	for(var ally in data.allies){
+		var allyArray = data.allies[ally];
+		traumaTokens.hands.push([allyArray[1]]);
+		traumaTokens.owner.push(d.allyNames[allyArray[0]]);
+	}
+
+	return traumaTokens;
+}
+
 
 function dradisHelper(sectorId, sectorArray, shipPrefix, shipData, charactersInSpaceArray){
 	for(var shipIndex in shipData){
@@ -243,4 +287,15 @@ function dradisHelper(sectorId, sectorArray, shipPrefix, shipData, charactersInS
 			}
 		}
 	}
+}
+
+function traumaName(id){
+	var traumaName;
+	switch(id){
+		case -1: traumaName = "DISASTER"; break;
+		case 0: traumaName = "Antagonistic"; break;
+		case 1: traumaName = "Benevolent"; break;
+		default: traumaName = "Unknown"; break;
+	}
+	return traumaName;
 }

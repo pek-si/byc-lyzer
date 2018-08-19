@@ -36,6 +36,7 @@ var tables = [
 	{id: "skill-hand", title: "Skill Cards (Players)", expansion: "basegame", privateDataTable: true},
 	{id: "mutiny", title: "Mutiny Cards (Daybreak)", expansion: "daybreak"},
 	{id: "mission", title: "Mission Deck (Daybreak)", expansion: "daybreak earth"},
+	{id: "trauma", title: "Trauma Tokens (Exodus)", expansion: "exodus ionian", privateDataTable: true},
 ];
 
 function init(){
@@ -90,45 +91,39 @@ function setupTables(){
 				jQuery.extend(true, {}, COLUMN_GROUP_CRISIS),
 				jQuery.extend(true, {}, COLUMN_GROUP_BURYABLE),
 				jQuery.extend(true, {}, COLUMN_GROUP_TOKEN_DETAILS)
-			],
-		}, DEFAULT_OPTIONS);
+			]}, DEFAULT_OPTIONS);
 	var destinationOptions = jQuery.extend(true, {
 			columns:[
 				jQuery.extend(true, {}, COLUMN_GROUP_TOKEN),
 				jQuery.extend(true, {}, COLUMN_GROUP_BURYABLE),
 				jQuery.extend(true, {}, COLUMN_GROUP_TOKEN_DETAILS)
-			],
-		}, DEFAULT_OPTIONS);
+			]}, DEFAULT_OPTIONS);
 	var quorumOptions = jQuery.extend(true, {
 			columns:[
 				jQuery.extend(true, {}, COLUMN_GROUP_TOKEN),
 				jQuery.extend(true, {}, COLUMN_GROUP_PLAYABLE),
 				jQuery.extend(true, {}, COLUMN_GROUP_BURYABLE),
 				jQuery.extend(true, {}, COLUMN_GROUP_TOKEN_DETAILS)
-			],
-		}, DEFAULT_OPTIONS);
+			]}, DEFAULT_OPTIONS);
 	var superCrisisOptions = jQuery.extend(true, {
 			columns:[
 				jQuery.extend(true, {}, COLUMN_GROUP_TOKEN),
 				jQuery.extend(true, {}, COLUMN_GROUP_OWNABLE),
 				jQuery.extend(true, {}, COLUMN_GROUP_PLAYABLE),
 				jQuery.extend(true, {}, COLUMN_GROUP_TOKEN_DETAILS)
-			],
-		}, DEFAULT_OPTIONS);
+			]}, DEFAULT_OPTIONS);
 	var loyaltyOptions = jQuery.extend(true, {}, superCrisisOptions)	//has similar properties with super crisis cards
 	var dradisOptions = jQuery.extend(true, {
 			columns:[
 				jQuery.extend(true, {}, COLUMN_GROUP_TOKEN),
 				jQuery.extend(true, {}, COLUMN_GROUP_OWNABLE),
 				jQuery.extend(true, {}, COLUMN_GROUP_TOKEN_DETAILS)
-			],
-		}, DEFAULT_OPTIONS);
+			]}, DEFAULT_OPTIONS);
 	var civilianOptions = jQuery.extend(true, {
 			columns:[
 				jQuery.extend(true, {}, COLUMN_GROUP_TOKEN),
 				jQuery.extend(true, {}, COLUMN_GROUP_PLAYABLE)
-			],
-		}, DEFAULT_OPTIONS);
+			]}, DEFAULT_OPTIONS);
 	var skillOptions = jQuery.extend(true, {
 			columns:[
 				jQuery.extend(true, {}, COLUMN_GROUP_TOKEN),
@@ -136,20 +131,17 @@ function setupTables(){
 				jQuery.extend(true, {}, COLUMN_GROUP_OWNABLE),
 				jQuery.extend(true, {}, COLUMN_GROUP_PLAYABLE),
 				jQuery.extend(true, {}, COLUMN_GROUP_TOKEN_DETAILS)
-			],
-		}, DEFAULT_OPTIONS);
+			]}, DEFAULT_OPTIONS);
 	var destinyOptions = jQuery.extend(true, {
 			columns:[
 				jQuery.extend(true, {}, COLUMN_GROUP_TOKEN),
 				jQuery.extend(true, {}, COLUMN_GROUP_SKILL),
 				jQuery.extend(true, {}, COLUMN_GROUP_TOKEN_DETAILS)
-			],
-		}, DEFAULT_OPTIONS);
+			]}, DEFAULT_OPTIONS);
 	var damageOptions = jQuery.extend(true, {
 			columns:[
 				jQuery.extend(true, {}, COLUMN_GROUP_TOKEN)
-			],
-		}, DEFAULT_OPTIONS);
+			]}, DEFAULT_OPTIONS);
 	var mutinyOptions = jQuery.extend(true, {
 			columns:[
 				jQuery.extend(true, {}, COLUMN_GROUP_TOKEN),
@@ -157,17 +149,20 @@ function setupTables(){
 				jQuery.extend(true, {}, COLUMN_GROUP_PLAYABLE),
 				jQuery.extend(true, {}, COLUMN_GROUP_BURYABLE),
 				jQuery.extend(true, {}, COLUMN_GROUP_TOKEN_DETAILS)
-			],
-		}, DEFAULT_OPTIONS);
+			]}, DEFAULT_OPTIONS);
 	var missionOptions = jQuery.extend(true, {
 			columns:[
 				jQuery.extend(true, {}, COLUMN_GROUP_TOKEN),
 				jQuery.extend(true, {}, COLUMN_GROUP_PLAYABLE),
 				jQuery.extend(true, {}, COLUMN_GROUP_BURYABLE),
 				jQuery.extend(true, {}, COLUMN_GROUP_TOKEN_DETAILS)
-			],
-		}, DEFAULT_OPTIONS);
-	
+			]}, DEFAULT_OPTIONS);
+	var traumaOptions = jQuery.extend(true, {
+			columns:[
+				jQuery.extend(true, {}, COLUMN_GROUP_TOKEN),
+				jQuery.extend(true, {}, COLUMN_GROUP_OWNABLE)
+			]}, DEFAULT_OPTIONS);
+
 	//modify some titles & options
 	crisisOptions.columns[0].columns[0].title="Turn";
 	destinationOptions.columns[0].columns[0].title="Jump";
@@ -192,6 +187,8 @@ function setupTables(){
 	mutinyOptions.height=null;
 	missionOptions.height=null;
 	missionOptions.columns[1].title="Active";
+	traumaOptions.groupBy = "owner";
+	traumaOptions.columns[1].title="Owner";
 	
 	//store table options
 	setTableOptions("crisis", crisisOptions);
@@ -206,6 +203,7 @@ function setupTables(){
 	setTableOptions("damage", damageOptions);
 	setTableOptions("mutiny", mutinyOptions);
 	setTableOptions("mission", missionOptions);
+	setTableOptions("trauma", traumaOptions);
 }
 
 function btnAnalyze(){
@@ -280,6 +278,7 @@ function parseData(data){
 	
 	var mutinyData = null; //parsed just a bit later
 	var missionData = null; //parsed just a bit later
+	var traumaData = null; //parsed just a bit later
 	
 	//Daybreak specific data
 	if(data.daybreak){
@@ -296,9 +295,21 @@ function parseData(data){
 		$(".daybreak.earth").hide();
 	}
 	
+	//Ionian Nebula specific data
+	var isIonian = data.destination.indexOf("Ionian") >= 0;
+	if(isIonian){
+		traumaData = bycAnalyzer.parseTokens(bycAnalyzer.combineTraumaData(data), TOKEN_TYPE.TRAUMA);
+		$(".exodus.ionian").show();
+	}else{
+		$(".exodus.ionian").hide();
+	}
+
 	//hide/show certain tables
 	if(showPrivateData){
-		$(".privateDataTable").show();
+		$(".basegame.privateDataTable").show();
+		if(isIonian){
+			$(".ionian.privateDataTable").show();
+		}
 	}else{
 		$(".privateDataTable").hide();
 	}
@@ -315,10 +326,11 @@ function parseData(data){
 	setTableData("destiny", destinyData);
 	setTableData("mutiny", mutinyData);
 	setTableData("mission", missionData);
+	setTableData("trauma", traumaData);
 	
 	//TODO data.basestarDamage; data.pegasusDamage
 	//TODO data skillCardDecks; skillCardDiscards;	///	skillCheckCards
-	//TODO ionian 		data traumaPile; sickbayTrauma; brigTrauma; allyDeck & allies?
+	//TODO ionian 		allyDeck & allies?
 	//TODO new caprica 	data lockedCivilians; preparedCivilians
 }
 

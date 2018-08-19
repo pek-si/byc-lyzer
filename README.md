@@ -24,6 +24,7 @@ The following cards and tokens are supported by BYC-lyzer:
 - Skill Cards, player hands (end of game)
 - Mutiny Cards (Daybreak)
 - Mission Deck (Daybreak)
+- Trauma Tokens (Exodus; Ionian Nebula & Ionian Earth; end of game)
 
 The *Site Information* button will display this information in a dialog window. There are options to *Close* the dialog, *Opt-in for Persistent Data*, and *Clear Data*. The latter two options are related to the data usage of the web-site. The latest analyzed seed is always stored in the browser storage. BYC-lyzer operates completely on the client side (i.e. a browser) so no data is exchanged with other services.
 
@@ -68,3 +69,4 @@ This tool is inspired by the [Battlestar Galactica: The Board Game][ffg] created
 - 0.9.3: Fixed an issue with piloted vipers.
 - 0.9.4: Added a feature to export 'End of Game Summary'.
 - 0.9.5: Added a feature to fill the seed input based on URL fragment.
+- 0.9.6: Added a table for Trauma Tokens.

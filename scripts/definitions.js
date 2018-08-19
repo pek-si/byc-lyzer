@@ -111,6 +111,16 @@ Object.assign(Ship.prototype, Playable.prototype);
 Object.assign(Ship.prototype, Ownable.prototype);
 Ship.prototype.constructor = Ship;
 
+// Trauma token class
+var Trauma = function(identifier, name){
+       Token.call(this, identifier, name);
+       Playable.call(this);
+       Ownable.call(this);
+}
+Trauma.prototype = Object.create(Token.prototype);
+Object.assign(Trauma.prototype, Playable.prototype);
+Object.assign(Trauma.prototype, Ownable.prototype);
+Trauma.prototype.constructor = Trauma;
 
 //Crisis Card class
 var CrisisCard = function(identifier, name, activation, prep){
@@ -193,6 +203,7 @@ var TOKEN_TYPE = {
 	SHIP: "ship",
 	SKILL: "skill",
 	SUPER_CRISIS: "super",
+	TRAUMA: "trauma",
 	QUORUM: "quorum"
 };
 
