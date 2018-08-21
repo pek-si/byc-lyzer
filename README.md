@@ -7,7 +7,7 @@ Disclaimer: You should own the game before using this tool in order to minimize 
 ### Usage
 Open the web-site ([index.html](index.html)) in your favourite browser. I have tested it with a desktop Chromium, but it should work on other modern browsers just as well. Browsers on mobile devices should work too but prepare to scroll a lot.
 
-Copy and paste the game seed into the text area *BYC Current Seed* and click *Analyze* button. If everything went OK, you should see the Game status, and publicly available information. If the game is over, also the secret information is disclosed. Text area *BYC Initial Seed* is used for tracking buried cards, but that feature is not yet available.
+Copy and paste the game seed into the text area *BYC Current Seed* and click *Analyze* button. If everything went OK, you should see the Game status, and publicly available information. If the game is over, also the secret information is disclosed. Text area *BYC Compare Previous Seed* is used for inspecting the previous game state of the finished game. A button to export *End of Game Summary* will appear on finished games.
 
 The data contained in the seed is then displayed on the tables. The card information shown is generally divided into two groups: played cards (i.e. those that are discarded or in play) and deck cards (i.e. those still in the deck). You may re-order the data on any column by clicking the column header. Only the name of the card will be shown.
 
@@ -68,5 +68,6 @@ This tool is inspired by the [Battlestar Galactica: The Board Game][ffg] created
 - 0.9.2: Added a table for Mission Deck.
 - 0.9.3: Fixed an issue with piloted vipers.
 - 0.9.4: Added a feature to export 'End of Game Summary'.
-- 0.9.5: Added a feature to fill the seed input based on URL fragment.
+- 0.9.5: Added a feature to pre-fill the seed input based on URL fragment (for example, #/seed/[baseseed]).
 - 0.9.6: Added a table for Trauma Tokens.
+- 1.0.0: The previous game state can now be inspected once the game has finished.

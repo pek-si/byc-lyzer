@@ -54,11 +54,6 @@ function init(){
 	if(inputSeed){
 		$("#input-seed").val(inputSeed);
 	}
-	if(SHOW_BURIED_CARDS){	//a switch to hide buried column
-		$("#input-seed-initial").parent().show();
-	}else{
-		$("#input-seed-initial").parent().hide();	
-	}
 	setupHtml();
 	setupTables();
 	getHashParameter();
@@ -207,22 +202,31 @@ function setupTables(){
 }
 
 function btnAnalyze(){
-	var matched = $("#input-seed").val().match(/(\S{0,20}\-)+/);
-	var stored = null;
 	$("#btnExport").hide();
+	$("#input-seed-compare").parent().hide();
+	var anotherSeed = $("#input-seed-compare").val();
+	$("#input-seed-compare").val("");	//clear another seed
+	parseSeed($("#input-seed").val(), anotherSeed);
+}
+
+function btnExport(){
+	if(exporter){
+		exporter.init($("body"), _staticData.tableHandles);
+	}
+}
+
+function parseSeed(seedCurrent, seedCompare){
+	var matched = bycAnalyzer.seedMatcher(seedCurrent);
+	var stored = null;
 	if(matched){
-		stored = matched[0];
+		stored = matched;
 	}else{
 		setGameStatusText("Did not find a suitable seed");
 		return false;
 	}
 
-	var unparsed = stored.replace(/-/g,'');
-	var seed = window.atob(unparsed);
-	var data = null
-	try{
-		data = JSON.parse(seed);
-	}catch(e){
+	var data = base64seedToJson(stored);
+	if(data == null){
 		setGameStatusText("Could not parse the seed");
 		return false;
 	}
@@ -233,17 +237,28 @@ function btnAnalyze(){
 		return false;
 	}
 
+	if(data.gameOver){
+		$("#input-seed-compare").parent().show();
+		//checking for a seed to compare
+		if(seedCompare && seedCompare.length > 0){
+			var anotherSeed = base64seedToJson(bycAnalyzer.seedMatcher(seedCompare));
+			if(bycAnalyzer.compareSeeds(data, anotherSeed)){
+				anotherSeed.seedCompare = true;
+				data = anotherSeed;
+			}else{
+				setGameStatusText("Game seeds were not from the same game, or were otherwise incompatible");
+				return false;
+			}
+		}else{
+			$("#btnExport").show();
+		}
+	}
+
 	//success, store and update input element
 	setSeed(stored);
 	$("#input-seed").val(stored);
 	parseData(data);
 	return true;
-}
-
-function btnExport(){
-	if(exporter){
-		exporter.init($("body"), _staticData.tableHandles);
-	}
 }
 
 function parseData(data){
@@ -252,7 +267,9 @@ function parseData(data){
 	if(data.gameOver){
 		setGameStatusText(turnInfo + "Finished");
 		showPrivateData = true;
-		$("#btnExport").show();
+	}else if(data.seedCompare){
+		setGameStatusText(turnInfo + " Previous game state shown (finished)");
+		showPrivateData = true;
 	}else{
 		if(OVERRIDE_SAFETY){
 			setGameStatusText(turnInfo + "In progress (secret data included)");

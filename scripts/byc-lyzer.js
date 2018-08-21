@@ -147,6 +147,55 @@ BycAnalyzer.prototype.parseToken = function(type, tokenId, extraData){
 	return token;
 }
 
+BycAnalyzer.prototype.seedMatcher = function(string){
+	if(string){
+		var matched = string.match(/(\S{0,20}\-)+/);
+		if(matched && matched[0]){
+			return matched[0];
+		}else{
+			return null;
+		}
+	}else{
+		return null;
+	}
+}
+
+/**
+ * Performs a few rudimentary checks to determine whether the given seeds are from the same game.
+ * @param {Object} seed the initial seed. Note: flag 'gameOver' must be true.
+ * @param {Object} anotherSeed the seed to be compared. Note: flag 'gameSetup' must be false.
+ * @return {Boolean} returns true if the games are a match. Otherwise return false.
+ */
+BycAnalyzer.prototype.compareSeeds = function(seed, anotherSeed){
+	if(seed && anotherSeed && seed.gameOver && !anotherSeed.gameSetup){
+		if(seed.destination !== anotherSeed.destination){
+			return false;
+		}
+		if(seed.pegasus !== anotherSeed.pegasus){
+			return false;
+		}
+		if(seed.exodus !== anotherSeed.exodus){
+			return false;
+		}
+		if(seed.daybreak !== anotherSeed.daybreak){
+			return false;
+		}
+		if(seed.pegasusIC !== anotherSeed.pegasusIC){
+			return false;
+		}
+		//check whether the last 50 die rolls are identical
+		for(var roll = 0; roll < 50; ++roll){
+			if(seed.dieRolls[roll] !== anotherSeed.dieRolls[roll]){
+				return false;
+			}
+		}
+		//if we got up here, it is quite probable that the seeds are matching
+		return true;
+	}else{
+		return false;
+	}
+}
+
 BycAnalyzer.prototype.shipName = function(id){
 	var shipId = id.match(/[a-z]{1,2}\d{0,1}/i)[0];
 	var shipName;
@@ -298,4 +347,23 @@ function traumaName(id){
 		default: traumaName = "Unknown"; break;
 	}
 	return traumaName;
+}
+
+function base64seedToJson(base64seed){
+	if(base64seed === null){
+		return null;
+	}
+	var unparsed = base64seed.replace(/-/g,'');
+	if(unparsed.length % 4 == 1){
+		return null;
+	}
+	var seed = window.atob(unparsed);
+	var data = null
+	try{
+		data = JSON.parse(seed);
+	}catch(e){
+		//failed to parse the seed...
+		console.log("Could not parse the seed");
+	}
+	return data;
 }
