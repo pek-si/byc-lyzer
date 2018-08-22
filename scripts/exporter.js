@@ -35,8 +35,8 @@ var exporter = {
 		items["Upcoming Crises"] = this.__rowRetriever(tableHandles.crisis.tabulator("getData"));
 		items["Next Destinations"] = this.__rowRetriever(tableHandles.destination.tabulator("getData"));
 		items["Quorum Hand"] = this.__rowRetriever(tableHandles.quorum.tabulator("getData"), true);
-		items["Quorum Deck"] = this.__rowRetriever(tableHandles.quorum.tabulator("getData"));
-		items["Mutiny Deck"] = this.__rowRetriever(tableHandles.mutiny.tabulator("getData"));
+		items["Remaining Quorum Deck"] = this.__rowRetriever(tableHandles.quorum.tabulator("getData"), false, true);
+		items["Remaining Mutiny Deck"] = this.__rowRetriever(tableHandles.mutiny.tabulator("getData"), false, true);
 
 		var modalBody = dialog.find(".modal-body");
 		modalBody.empty();
@@ -49,7 +49,7 @@ var exporter = {
 			modalBody.append(content);
 		}
 	},
-	__rowRetriever: function(tableData, includeHand){
+	__rowRetriever: function(tableData, includeHand, includeWholeDeck){
 		var itemArray = [];
 		for(var row in tableData){
 			if(includeHand){
@@ -59,7 +59,7 @@ var exporter = {
 			}else{
 				if(!tableData[row].discarded){
 					itemArray.push(tableData[row].name);
-					if(itemArray.length >= 10){
+					if(!includeWholeDeck && itemArray.length >= 10){
 						break;
 					}
 				}
