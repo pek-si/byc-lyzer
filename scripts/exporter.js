@@ -37,15 +37,22 @@ var exporter = {
 		items["Quorum Hand"] = this.__rowRetriever(tableHandles.quorum.tabulator("getData"), true);
 		items["Remaining Quorum Deck"] = this.__rowRetriever(tableHandles.quorum.tabulator("getData"), false, true);
 		items["Remaining Mutiny Deck"] = this.__rowRetriever(tableHandles.mutiny.tabulator("getData"), false, true);
+		items["Mission Deck"] = this.__rowRetriever(tableHandles.mission.tabulator("getData"), false, true);
 
 		var modalBody = dialog.find(".modal-body");
 		modalBody.empty();
 		for(var prop in items){
-			var content = "<div><h5>"+prop + ":</h5><ol>";
+			var content = "<div><h4>"+prop + ":</h4>";
+			var liItems = "";
 			for(var item in items[prop]){
-				content += "<li>"+items[prop][item]+"</li>";
+				liItems += "<li>"+items[prop][item]+"</li>";
 			}
-			content += "</ol></div>";
+			if(liItems.length > 0){
+				content += "<ol>" + liItems + "</ol>";
+			}else{
+				content += "<span>Data not available</span>";
+			}
+			content += "</div><br/>";
 			modalBody.append(content);
 		}
 	},
