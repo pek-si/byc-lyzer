@@ -55,6 +55,7 @@ Ownable.prototype.setOwner = function(owner){
 var Token = function(identifier, name){
 	Discardable.call(this);
 	this.id = identifier;
+	this.isToken = true;
 	this.name = name;
 	this.ordinal = 0;
 }
@@ -76,6 +77,7 @@ Token.prototype.toData = function(){
 // Card class
 var Card = function(identifier, name){
 	Token.call(this, identifier, name);
+	this.isToken = false;
 }
 Card.prototype = Object.create(Token.prototype);
 Card.prototype.constructor = Card;
@@ -185,7 +187,7 @@ MissionCard.prototype.constructor = MissionCard;
 var COLUMN_SIZE = {
 	NARROW: 85,
 	MEDIUM: 105,
-	WIDE: 125
+	WIDE: 205
 }
 var NO_DATA = "Data unavailable";
 var OVERRIDE = "override";
@@ -231,7 +233,8 @@ var COLUMN_GROUP_TOKEN = {
 	title:"Basic Information",
 	columns:[
 		{title:"Card", field:"ordinal", align:"right", sorter:"number", width: COLUMN_SIZE.NARROW},
-		{title:"Name", field:"name", minWidth: COLUMN_SIZE.WIDE}
+		{title:"Is Token", field:"isToken", sorter:"boolean", formatter: "tickCross", visible: false},
+		{title:"Name", field:"name", minWidth: COLUMN_SIZE.WIDE},
 	]
 };
 var COLUMN_GROUP_CRISIS = {
@@ -262,7 +265,13 @@ var COLUMN_GROUP_TOKEN_DETAILS = {
 };
 
 function headerFormatter(value, count, data, group){
-	return (value ? "Cards in Play/Tokens in Play" : "Cards in Deck/Tokens in Reserve")
+	var isToken = false;
+	if(count > 0 && data[0].isToken){
+		isToken = true;
+	}
+	var activeHeader = (isToken ? "Tokens" : "Cards") + " in Play";
+	var reserveHeader = (isToken ? "Tokens in Reserve" : "Cards in Deck");
+	return (value ? activeHeader : reserveHeader)
 		+ "<span style='color:#d00; margin-left:10px;'>("
 		+ count + " item" + plural(count) + ")</span>";
 }
