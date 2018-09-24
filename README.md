@@ -71,3 +71,4 @@ This tool is inspired by the [Battlestar Galactica: The Board Game][ffg] created
 - 0.9.5: Added a feature to pre-fill the seed input based on URL fragment (for example, #/seed/[baseseed]).
 - 0.9.6: Added a table for Trauma Tokens.
 - 1.0.0: The previous game state can now be inspected once the game has finished.
+- 1.0.1: Fine tuned 'End of Game Summary' export feature.

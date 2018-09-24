@@ -211,7 +211,7 @@ function btnAnalyze(){
 
 function btnExport(){
 	if(exporter){
-		exporter.init($("body"), _staticData.tableHandles);
+		exporter.init($("body"), _staticData.tableHandles, $("#input-seed").val());
 	}
 }
 
