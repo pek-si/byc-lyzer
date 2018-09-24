@@ -266,14 +266,24 @@ var COLUMN_GROUP_TOKEN_DETAILS = {
 
 function headerFormatter(value, count, data, group){
 	var isToken = false;
-	if(count > 0 && data[0].isToken){
-		isToken = true;
+	var extraHeader = "";
+	if(count > 0){
+		if(data[0].isToken){
+			isToken = true;
+		}
+		if(data[0].hasOwnProperty("prep")){	//is a crisis card
+			var hasPreps = 0;
+			for(var crisis in data){	//count amount of jump preparations
+				hasPreps += data[crisis].prep;
+			}
+			extraHeader = "; jump preps " + hasPreps+"/"+count+"="+Number(hasPreps/count).toPrecision(3);
+		}
 	}
 	var activeHeader = (isToken ? "Tokens" : "Cards") + " in Play";
 	var reserveHeader = (isToken ? "Tokens in Reserve" : "Cards in Deck");
 	return (value ? activeHeader : reserveHeader)
 		+ "<span style='color:#d00; margin-left:10px;'>("
-		+ count + " item" + plural(count) + ")</span>";
+		+ count + " item" + plural(count) + extraHeader + ")</span>";
 }
 
 function skillHeaderFormatter(value, count, data, group){
@@ -282,7 +292,7 @@ function skillHeaderFormatter(value, count, data, group){
 		strength += data[i].value;
 	}
 	return value
-		+ " <span style='color:#d00; margin-left:10px;'>(" + strength + " point" + plural(strength)
+		+ "<span style='color:#d00; margin-left:10px;'>(" + strength + " point" + plural(strength)
 		+ ", " + count + " item" + plural(count) + ")</span>";
 }
 
