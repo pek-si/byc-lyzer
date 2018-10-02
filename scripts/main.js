@@ -160,6 +160,7 @@ function setupTables(){
 
 	//modify some titles & options
 	crisisOptions.columns[0].columns[0].title="Turn";
+	crisisOptions.groupHeader = crisisHeaderFormatter;
 	destinationOptions.columns[0].columns[0].title="Jump";
 	superCrisisOptions.height=null;
 	loyaltyOptions.height=null;
@@ -179,7 +180,6 @@ function setupTables(){
 	damageOptions.columns[0].columns[0].title="Location";
 	damageOptions.columns[0].columns[0].width=COLUMN_SIZE.MEDIUM;
 	damageOptions.height=null;
-	mutinyOptions.height=null;
 	missionOptions.height=null;
 	missionOptions.columns[1].title="Active";
 	traumaOptions.groupBy = "owner";

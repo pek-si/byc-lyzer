@@ -216,7 +216,7 @@ var DEFAULT_OPTIONS = {
 	columnVertAlign: "bottom",
 	groupBy:["discarded"],
 	groupHeader: headerFormatter,
-	height: "500px",
+	height: 500,	//fits approximately 15 rows + table headers
 	initialSort:[
 		{column:"ordinal", dir:"asc"},
 	],
@@ -228,6 +228,9 @@ var DEFAULT_OPTIONS = {
 	selectableRollingSelection: false,
 	selectablePersistence: false,
 	tooltips:true,
+	tooltipGenerationMode:"hover",	//included in tabulator 3.5.x
+	virtualDom: true,
+	virtualDomBuffer: 150
 };
 var COLUMN_GROUP_TOKEN = {
 	title:"Basic Information",
@@ -240,7 +243,7 @@ var COLUMN_GROUP_TOKEN = {
 var COLUMN_GROUP_CRISIS = {
 	title:"Crisis Information",
 	columns:[
-		{title:"Cylon Activation", field:"activation", width: COLUMN_SIZE.MEDIUM},
+		{title:"Activation", field:"activation", width: COLUMN_SIZE.MEDIUM},
 		{title:"Jump", field:"prep", align:"center", sorter:"boolean", formatter: "star", formatterParams:{stars:1}, width: COLUMN_SIZE.NARROW},
 	]
 };
@@ -266,24 +269,28 @@ var COLUMN_GROUP_TOKEN_DETAILS = {
 
 function headerFormatter(value, count, data, group){
 	var isToken = false;
-	var extraHeader = "";
-	if(count > 0){
-		if(data[0].isToken){
-			isToken = true;
-		}
-		if(data[0].hasOwnProperty("prep")){	//is a crisis card
-			var hasPreps = 0;
-			for(var crisis in data){	//count amount of jump preparations
-				hasPreps += data[crisis].prep;
-			}
-			extraHeader = "; jump preps " + hasPreps+"/"+count+"="+Number(hasPreps/count).toPrecision(3);
-		}
+	if(count > 0 && data[0].isToken){
+		isToken = true;
 	}
 	var activeHeader = (isToken ? "Tokens" : "Cards") + " in Play";
 	var reserveHeader = (isToken ? "Tokens in Reserve" : "Cards in Deck");
 	return (value ? activeHeader : reserveHeader)
-		+ "<span style='color:#d00; margin-left:10px;'>("
-		+ count + " item" + plural(count) + extraHeader + ")</span>";
+		+ "<span class='groupHeaderExtra'>("
+		+ count + " item" + plural(count) + ")</span>";
+}
+
+function crisisHeaderFormatter(value, count, data, group){
+	var extraHeader = "";
+	if(count > 0){	//is a crisis card
+		var hasPreps = 0;
+		for(var crisis in data){	//count amount of jump preparations
+			hasPreps += data[crisis].prep;
+		}
+		extraHeader = "jump preps " + hasPreps+"/"+count+"="+Number(hasPreps/count).toPrecision(3);
+	}
+	var headerTitle = "Cards in " + (value ? "Play" : "Deck");
+	return headerTitle
+		+ "<span class='groupHeaderExtra'>(" + extraHeader + ")</span>";
 }
 
 function skillHeaderFormatter(value, count, data, group){
@@ -292,7 +299,7 @@ function skillHeaderFormatter(value, count, data, group){
 		strength += data[i].value;
 	}
 	return value
-		+ "<span style='color:#d00; margin-left:10px;'>(" + strength + " point" + plural(strength)
+		+ "<span class='groupHeaderExtra'>(" + strength + " point" + plural(strength)
 		+ ", " + count + " item" + plural(count) + ")</span>";
 }
 
