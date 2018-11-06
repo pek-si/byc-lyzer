@@ -45,7 +45,7 @@ Playable.prototype.setInPlay = function(inPlay){
 
 // Ownable "interface" (e.g. player, sector, area)
 var Ownable = function(){
-	this.owner = false;
+	this.owner = null;
 }
 Ownable.prototype.setOwner = function(owner){
 	this.owner = owner;
@@ -251,7 +251,7 @@ var COLUMN_GROUP_PLAYABLE = {
 	title:"In Hand", field:"inPlay", align:"center", sorter:"boolean", formatter: "tickCross", width: COLUMN_SIZE.NARROW
 };
 var COLUMN_GROUP_OWNABLE = {
-	title:"Player", field:"owner", width: COLUMN_SIZE.MEDIUM
+	title:"Player", field:"owner", width: COLUMN_SIZE.MEDIUM, sorterParams:{ alignEmptyValues:"bottom" }
 };
 var COLUMN_GROUP_SKILL = {
 	title:"Value", field:"value", align:"right", sorter:"number", width: COLUMN_SIZE.NARROW
