@@ -45,7 +45,6 @@ This tool is inspired by the [Battlestar Galactica: The Board Game][ffg] created
 #### Libraries and components utilized by BYC-lyzer:
 - [BYC (By Your Command)][byc]; Use for non-commercial purposes granted
 - [jQuery][jquery]; jQuery License/MIT
-- [jQuery UI][jquery-ui]; jQuery License/MIT
 - [Bootstrap][bootstrap]; MIT
 - [tabulator][tabulator]; MIT
 - [marked][marked]; MIT
@@ -55,7 +54,6 @@ This tool is inspired by the [Battlestar Galactica: The Board Game][ffg] created
 [bgg user]: https://boardgamegeek.com/user/kingerc
 [ffg]: https://www.fantasyflightgames.com/en/products/battlestar-galactica/
 [jquery]: https://jquery.org/
-[jquery-ui]: https://jqueryui.com/
 [bootstrap]: https://getbootstrap.com/
 [tabulator]: https://github.com/olifolkerd/tabulator
 [marked]: https://github.com/markedjs/marked

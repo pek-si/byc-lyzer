@@ -364,7 +364,7 @@ function tabulate(tableId, options){
 		if(wasHidden){ // table parent was hidden, make it visible temporarily
 			$(id).parent().show();
 		}
-		_staticData.tableHandles[tableId] = $(id).tabulator(options);
+		_staticData.tableHandles[tableId] = new Tabulator(id, options);
 		if(wasHidden){ // hide the table parent again once tabulator has finished
 			$(id).parent().hide();
 		}
@@ -376,9 +376,9 @@ function setTableData(tableId, data){
 		tabulate(tableId, getTableOptions(tableId));	//prepare table
 	}
 	if(data){
-		_staticData.tableHandles[tableId].tabulator("setData", data);
+		_staticData.tableHandles[tableId].setData(data);
 	}else{
-		_staticData.tableHandles[tableId].tabulator("clearData");
+		_staticData.tableHandles[tableId].clearData();
 	}
 }
 
