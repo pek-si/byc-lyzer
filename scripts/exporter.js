@@ -81,12 +81,12 @@ var exporter = {
 	},
 	__itemBuilder: function(tableHandles){
 		var items = {};
-		items["Upcoming Crises"] = this.__rowRetriever(tableHandles.crisis.tabulator("getData"));
-		items["Next Destinations"] = this.__rowRetriever(tableHandles.destination.tabulator("getData"));
-		items["Quorum Hand"] = this.__rowRetriever(tableHandles.quorum.tabulator("getData"), true);
-		items["Remaining Quorum Deck"] = this.__rowRetriever(tableHandles.quorum.tabulator("getData"), false, true);
-		items["Remaining Mutiny Deck"] = this.__rowRetriever(tableHandles.mutiny.tabulator("getData"), false, true);
-		items["Mission Deck"] = this.__rowRetriever(tableHandles.mission.tabulator("getData"), false, true);
+		items["Upcoming Crises"] = this.__rowRetriever(tableHandles.crisis.getData());
+		items["Next Destinations"] = this.__rowRetriever(tableHandles.destination.getData());
+		items["Quorum Hand"] = this.__rowRetriever(tableHandles.quorum.getData(), true);
+		items["Remaining Quorum Deck"] = this.__rowRetriever(tableHandles.quorum.getData(), false, true);
+		items["Remaining Mutiny Deck"] = this.__rowRetriever(tableHandles.mutiny.getData(), false, true);
+		items["Mission Deck"] = this.__rowRetriever(tableHandles.mission.getData(), false, true);
 		return items;
 	},
 	__createURL: function(){
