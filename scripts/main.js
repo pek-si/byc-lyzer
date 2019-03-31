@@ -41,11 +41,7 @@ var tables = [
 
 function init(){
 	if(getUrlParameter(OVERRIDE) === "true"){
-		if (window.confirm("Are you sure you want to enable secret information?")) {
-			OVERRIDE_SAFETY = true;
-		} else {
-			OVERRIDE_SAFETY = false;
-		}
+		$("#secretModal").modal('show');
 	}
 	
 	$("#myModal").on('show.bs.modal', moreInformationModal);
@@ -355,6 +351,10 @@ function parseData(data){
  * HELPER FUNCTIONS ET AL.
  **/
 
+function agreed(){
+	OVERRIDE_SAFETY = true;
+}
+
 function tabulate(tableId, options){
 	if(tableId && options && _staticData.tableHandles[tableId] === undefined){
 		var id = "#table-"+tableId;
@@ -461,16 +461,26 @@ function setGameStatusText(message){
 }
 
 function setSeed(seed){
-	getStorage().setItem("inputSeed", seed);
+	var storage = getStorage();
+	if(storage){
+		storage.setItem("inputSeed", seed);
+	}
 }
 function getSeed(){
-	return getStorage().getItem("inputSeed");
+	var storage = getStorage();
+	if(storage){
+		return storage.getItem("inputSeed");
+	}else{
+		return undefined;
+	}
 }
 function getStorage(){
-	if(optedIn()){
+	if(storageAvailable("localStorage") === true && optedIn()){
 		return localStorage;
-	}else{
+	}else if(storageAvailable("sessionStorage") === true){
 		return sessionStorage;
+	}else{
+		return undefined;
 	}
 }
 function optedIn(){
@@ -495,5 +505,36 @@ function optInForLocalStorage(){
 }
 function clearStorage(){
 	var storage = getStorage();
-	storage.clear();
+	if(storage){
+		storage.clear();
+	}
+}
+
+/**
+ * Copied from:
+ * https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API/Using_the_Web_Storage_API#Testing_for_availability
+ */
+function storageAvailable(type) {
+    var storage;
+    try {
+        storage = window[type];
+        var x = '__storage_test__';
+        storage.setItem(x, x);
+        storage.removeItem(x);
+        return true;
+    }
+    catch(e) {
+        return e instanceof DOMException && (
+            // everything except Firefox
+            e.code === 22 ||
+            // Firefox
+            e.code === 1014 ||
+            // test name field too, because code might not be present
+            // everything except Firefox
+            e.name === 'QuotaExceededError' ||
+            // Firefox
+            e.name === 'NS_ERROR_DOM_QUOTA_REACHED') &&
+            // acknowledge QuotaExceededError only if there's something already stored
+            (storage && storage.length !== 0);
+    }
 }
