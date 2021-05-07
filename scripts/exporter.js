@@ -70,7 +70,10 @@ var exporter = {
 				}
 			}else{
 				if(!tableData[row].discarded){
-					itemArray.push(tableData[row].name);
+					if (tableData[row].prep)
+						itemArray.push(tableData[row].name+'*');
+					else
+						itemArray.push(tableData[row].name);
 					if(!includeWholeDeck && itemArray.length >= 10){
 						break;
 					}
